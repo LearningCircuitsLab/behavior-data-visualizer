@@ -195,5 +195,5 @@ if __name__ == '__main__':
     # Build the app
     app = app_builder(mouse_data_dict)
     # Run the app
-    app.run_server(debug=True)
+    app.run(debug=True)
 

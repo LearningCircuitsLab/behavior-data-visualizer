@@ -6,7 +6,11 @@ readme = "README.md"
 requires-python = ">=3.9.0"
 dynamic = ["version"]
 
-dependencies = []
+dependencies = [
+  "dash",
+  "plotly_calplot",
+  "fire",
+]
 
 license = {text = "BSD-3-Clause"}
 
