@@ -3,6 +3,7 @@ import base64
 from lecilab_behavior_analysis import utils as ut
 from lecilab_behavior_analysis import df_transforms as dft
 import plotly.express as px
+import socket
 
 def set_mouse_data_dict(data_dict):
     global mouse_data_dict
@@ -31,7 +32,7 @@ def display_click_data(clickData, mouse_name):
     except:
         return 'No date selected'
     # select the dataset
-    sdf = df[df['date'] == date]
+    sdf = df[df['year_month_day'] == date]
     return ut.get_text_from_df(sdf, mouse_name)
 
 # # Update the performance figure
@@ -47,7 +48,7 @@ def update_performance_figure(clickData, mouse_name):
     except:
         return {}
     # select the dataset
-    sdf = df[df['date'] == date]
+    sdf = df[df['year_month_day'] == date]
     sdf = dft.get_performance_through_trials(sdf, window=50)
     fig = px.line(sdf, x='total_trial', y='performance_w', color='current_training_stage')
     # put legend inside the plot
@@ -69,7 +70,18 @@ def update_psychometric_figure(clickData, mouse_name):
     except:
         return {}
     # select the dataset
-    sdf = df[df['date'] == date]
+    sdf = df[df['year_month_day'] == date]
     pdf = dft.get_performance_by_difficulty(sdf)
     fig = px.scatter(pdf, x='leftward_evidence', y='leftward_choices')
     return fig
+
+
+def get_data_path():
+    hostname = socket.gethostname()
+    paths = {
+        "headnode": "/archive/training_village/",
+        "minibaps": "/archive/training_village/",
+        "minibaps2": "/archive/training_village/",
+        "tectum": "/mnt/c/Users/HMARTINEZ/LeCiLab/data/behavioral_data/",
+    }
+    return paths.get(hostname, None)
