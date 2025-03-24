@@ -145,7 +145,7 @@ def app_builder(mouse_data_dict):
         if selected_value is None:
             return []
         df = mouse_data_dict[selected_value]
-        session_data_dict = utils.get_dicctionary_of_sessions(df)
+        session_data_dict = utils.get_dicctionary_of_dates(df)
         return [{'label': key, 'value': session_data_dict[key]} for key in session_data_dict.keys()]
 
     # Figure for the session summary
@@ -158,7 +158,7 @@ def app_builder(mouse_data_dict):
         if mouse is None or session is None:
             return ''
         df = mouse_data_dict[mouse]
-        sdf = df[df["session"] == session]
+        sdf = df[df["year_month_day"] == session]
         fig = fm.session_summary_figure(sdf, mouse, perf_window=100)
         return utils.fig_to_uri(fig)
 

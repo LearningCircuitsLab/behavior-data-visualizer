@@ -25,6 +25,13 @@ def get_dicctionary_of_sessions(df):
         sessions_dict[key] = session
     return sessions_dict
 
+def get_diccionary_of_dates(df):
+    dates_dict = {}
+    for date in df['year_month_day'].unique():
+        key = str(date)
+        dates_dict[key] = date
+    return dates_dict
+
 def display_click_data(clickData, mouse_name):
     try:
         date = clickData['points'][0]['customdata'][0]
