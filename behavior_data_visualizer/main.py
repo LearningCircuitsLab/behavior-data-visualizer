@@ -182,6 +182,8 @@ def get_mouse_data_dict(project_name):
                 data = dft.add_day_column_to_df(data)
                 # add it to the dictionary
                 mouse_data_dict[path.name] = data
+    # sort the dictionary
+    mouse_data_dict = dict(sorted(mouse_data_dict.items()))   
     # pass it to utils to make it global
     utils.set_mouse_data_dict(mouse_data_dict)
     # return the data
