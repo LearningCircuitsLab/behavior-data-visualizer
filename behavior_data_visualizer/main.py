@@ -133,7 +133,7 @@ def app_builder(mouse_data_dict):
         if selected_value is None:
             return ''
         df = mouse_data_dict[selected_value]
-        fig = fm.subject_progress_figure(df, selected_value)
+        fig = fm.subject_progress_figure(df)
         return utils.fig_to_uri(fig)
 
     # Dropdown for the sessions
