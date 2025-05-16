@@ -40,7 +40,7 @@ def display_click_data(clickData, mouse_name):
         return 'No date selected'
     # select the dataset
     sdf = df[df['year_month_day'] == date]
-    return ut.get_text_from_df(sdf, mouse_name)
+    return ut.get_text_from_subset_df(sdf)
 
 # # Update the performance figure
 # @app.callback(
