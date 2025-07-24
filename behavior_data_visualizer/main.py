@@ -235,4 +235,4 @@ def app_builder(project_name):
 
 if __name__ == '__main__':
     app = app_builder('visual_and_COT_data')
-    app.run(debug=True, port=8051)
+    app.run(debug=True, port=8050)
