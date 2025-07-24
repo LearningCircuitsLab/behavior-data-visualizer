@@ -145,15 +145,11 @@ def get_mouse_data_dict(project_name):
             if path.is_dir():
                 # check if the path has a csv file
                 if any(path.glob(f'{path.name}.csv')):
-                    # read that csv file if the animal is 008 # REMOVE ME
-                    if path.name == 'ACV008':
-                        data = pd.read_csv(path / f'{path.name}.csv', sep=';')
-                        # get the first 5000 rows
-                        data = data.head(5000)
-                        # add columns
-                        data = dft.add_day_column_to_df(data)
-                        # add it to the dictionary
-                        mouse_data_dict[path.name] = data
+                    data = pd.read_csv(path / f'{path.name}.csv', sep=';')
+                    # add columns
+                    data = dft.add_day_column_to_df(data)
+                    # add it to the dictionary
+                    mouse_data_dict[path.name] = data
         # sort the dictionary
         mouse_data_dict = dict(sorted(mouse_data_dict.items()))   
         # pass it to utils to make it global
