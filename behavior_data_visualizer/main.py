@@ -9,17 +9,56 @@ from lecilab_behavior_analysis import figure_maker as fm
 from lecilab_behavior_analysis import utils as lbaut
 from behavior_data_visualizer import utils
 import fire
+import os
+from flask import send_from_directory
+from dash.exceptions import PreventUpdate
 
+# Serve static files (e.g., videos)
+STATIC_PATH = os.path.join(os.getcwd(), 'static')
+if not os.path.exists(STATIC_PATH):
+    os.makedirs(STATIC_PATH)
 
-# Create the app
-def app_builder(mouse_data_dict):
-    # create an empty dictionary for the session data
+def app_builder(project_name):
+    mouse_data_dict = utils.get_mouse_data_dict(project_name)
     session_data_dict = {}
 
     app = dash.Dash(__name__)
 
-    # Create the layout
+    # Serve static files route
+    @app.server.route('/videos/<path:filename>')
+    def serve_video(filename):
+        return send_from_directory(STATIC_PATH, filename)
+
+    # Clientside callback to set video start time
+    app.clientside_callback(
+        """
+        function(startData) {
+            const video = document.getElementById("video-player");
+            if (video && startData && startData.time !== undefined) {
+                const setTime = () => {
+                    if (video.readyState >= 1) {
+                        video.currentTime = startData.time;
+                        video.play();
+                    } else {
+                        video.addEventListener('loadedmetadata', () => {
+                            video.currentTime = startData.time;
+                            video.play();
+                        });
+                    }
+                };
+                setTimeout(setTime, 500);
+            }
+            return window.dash_clientside.no_update;
+        }
+        """,
+        dash.Output("video-start-time", "data"),
+        dash.Input("video-start-time", "data")
+    )
+
+    # Layout
     app.layout = dash.html.Div([
+        dash.dcc.Store(id="video-start-time"),  # Declare globally in layout
+
         dash.dcc.Tabs([
             dash.dcc.Tab(label='Compare mice', children=[
                 dash.dcc.Checklist(
@@ -32,21 +71,23 @@ def app_builder(mouse_data_dict):
             ]),
 
             dash.dcc.Tab(label='Single mouse reactive', children=[
-                dash.dcc.Dropdown(
-                    id='single-mouse-dropdown',
-                    options=[{'label': key, 'value': key} for key in mouse_data_dict.keys()],
-                    value=None,
-                    multi=False,
-                    style={'width': '30%'}
-                ),
-                dash.dcc.Graph(id='reactive-calendar', style={'width': '100%'}),
                 dash.html.Div([
-                    dash.html.Pre(id='single-mouse-text', style={'flex': '1'}),
-                    dash.dcc.Graph(id='single-mouse-performance', style={'flex': '1', 'height': '15%'}),
-                    dash.dcc.Graph(id="single-mouse-psychometric", style={'flex': '1', 'height': '15%'}),
+                    dash.dcc.Dropdown(
+                        id='single-mouse-dropdown',
+                        options=[{'label': key, 'value': key} for key in mouse_data_dict.keys()],
+                        value=None,
+                        multi=False,
+                        style={'width': '5%'}
+                    ),
+                    dash.dcc.Graph(id='reactive-calendar', style={'width': '55%'}),
+                    dash.html.Pre(id='single-mouse-text', style={'flex': '1', 'width': '40%'}),
+                ], style={'display': 'flex', 'flex-direction': 'row'}),
+                dash.html.Div([
+                    dash.dcc.Graph(id='single-mouse-performance', style={'flex': '1', 'height': '15%', 'width': '35%'}),
+                    dash.dcc.Graph(id="single-mouse-psychometric", style={'flex': '1', 'height': '15%', 'width': '20%'}),
+                    dash.html.Pre(id='single-mouse-video', style={'display': 'flex', 'flex-direction': 'row', 'flex': '1', 'width': '45%'}),
                 ], style={'display': 'flex', 'flex-direction': 'row'}),
             ]),
-
             dash.dcc.Tab(label='Reports', children=[
                 dash.html.H3('Subject progress'),
                 dash.dcc.Dropdown(
@@ -70,7 +111,6 @@ def app_builder(mouse_data_dict):
         ])
     ])
 
-    # Callback for the mouse comparison
     @app.callback(
         dash.dependencies.Output('graph', 'figure'),
         [dash.dependencies.Input('mice-checklist', 'value')],
@@ -78,7 +118,6 @@ def app_builder(mouse_data_dict):
     def update_figure(selected_items):
         if len(selected_items) == 0:
             return {}
-        # merge the datasets of the selected mice
         tdfs = []
         for key in selected_items:
             df = mouse_data_dict[key]
@@ -88,7 +127,6 @@ def app_builder(mouse_data_dict):
         fig = px.line(tdf, x='total_trial', y='performance_w', color='mouse_name')
         return fig
 
-    # Callbacks for the single mouse reactive
     @app.callback(
         dash.dependencies.Output('reactive-calendar', 'figure'),
         [dash.dependencies.Input('single-mouse-dropdown', 'value')],
@@ -97,24 +135,20 @@ def app_builder(mouse_data_dict):
         if mouse_name is None:
             return {}
         df = mouse_data_dict[mouse_name]
-
         dates_df = df.groupby(["year_month_day"]).count().reset_index()
-
         fig = calplot(
             dates_df,
             x='year_month_day',
             y='trial',
-            # text="year_month_day",
         )
         return fig
 
-    # Update the figures with the click data
     @app.callback(
         dash.dependencies.Output('single-mouse-text', 'children'),
         dash.dependencies.Output('single-mouse-performance', 'figure'),
         dash.dependencies.Output('single-mouse-psychometric', 'figure'),
         [dash.dependencies.Input('reactive-calendar', 'clickData'),
-        dash.dependencies.Input('single-mouse-dropdown', 'value')],
+         dash.dependencies.Input('single-mouse-dropdown', 'value')],
     )
     def update_single_mouse_reactive(clickData, mouse_name):
         text = utils.display_click_data(clickData, mouse_name)
@@ -122,9 +156,46 @@ def app_builder(mouse_data_dict):
         psych_fig = utils.update_psychometric_figure(clickData, mouse_name)
         return text, perf_fig, psych_fig
 
+    @app.callback(
+        dash.dependencies.Output('single-mouse-video', 'children'),
+        dash.dependencies.Output('video-start-time', 'data', allow_duplicate=True),
+        [dash.dependencies.Input('single-mouse-performance', 'clickData')],
+        prevent_initial_call=True
+    )
+    def update_single_mouse_video(clickData):
+        if clickData is None:
+            raise PreventUpdate
 
-    # Callback for the reports
-    # Figure for the subject progress
+        try:
+            subject, task, date, trial = clickData['points'][0]['customdata']
+            video_path = utils.get_video_path(project_name, subject, task, date, trial)
+        except (KeyError, TypeError):
+            return dash.html.Div("Invalid click data"), dash.no_update
+
+        if not os.path.exists(video_path):
+            return dash.html.Div(f"Video file not found: {video_path}"), dash.no_update
+
+        video_filename = os.path.basename(video_path)
+        static_video_path = os.path.join(STATIC_PATH, video_filename)
+        if not os.path.exists(static_video_path):
+            try:
+                os.symlink(video_path, static_video_path)
+            except OSError as e:
+                return dash.html.Div(f"Error linking video: {e}"), dash.no_update
+
+        # convert trial to seconds
+        start_time = utils.get_seconds_of_trial(subject, date, trial)
+        video_component = dash.html.Video(
+            id="video-player",
+            src=f"/videos/{video_filename}",
+            controls=True,
+            autoPlay=True,
+            muted=True,
+            style={"width": "100%"},
+        )
+
+        return video_component, {"time": start_time}
+
     @app.callback(
         dash.dependencies.Output('subject-progress', component_property='src'),
         [dash.dependencies.Input('reports-mice-dropdown', 'value')],
@@ -136,7 +207,6 @@ def app_builder(mouse_data_dict):
         fig = fm.subject_progress_figure(df)
         return utils.fig_to_uri(fig)
 
-    # Dropdown for the sessions
     @app.callback(
         dash.dependencies.Output('reports-session-dropdown', 'options'),
         [dash.dependencies.Input('reports-mice-dropdown', 'value')],
@@ -148,7 +218,6 @@ def app_builder(mouse_data_dict):
         session_data_dict = utils.get_diccionary_of_dates(df)
         return [{'label': key, 'value': session_data_dict[key]} for key in session_data_dict.keys()]
 
-    # Figure for the session summary
     @app.callback(
         dash.dependencies.Output('session-summary', component_property='src'),
         [dash.dependencies.Input('reports-mice-dropdown', 'value')],
@@ -164,38 +233,6 @@ def app_builder(mouse_data_dict):
 
     return app
 
-def get_mouse_data_dict(project_name):
-    # Load the data
-    outpath = utils.get_data_path() + project_name + "/sessions/"
-    # go through the tree and get the data
-    mouse_data_dict = {}
-    
-    # get the animals from the path
-    for path in Path(outpath).iterdir():
-        # check if the path is a directory
-        if path.is_dir():
-            # check if the path has a csv file
-            if any(path.glob(f'{path.name}.csv')):
-                # read that csv file
-                data = pd.read_csv(path / f'{path.name}.csv', sep=';')
-                # add columns
-                data = dft.add_day_column_to_df(data)
-                # add it to the dictionary
-                mouse_data_dict[path.name] = data
-    # sort the dictionary
-    mouse_data_dict = dict(sorted(mouse_data_dict.items()))   
-    # pass it to utils to make it global
-    utils.set_mouse_data_dict(mouse_data_dict)
-    # return the data
-    return mouse_data_dict
-
-# Run the app
 if __name__ == '__main__':
-    # Get the data
-    # Fire(get_mouse_data_dict)
-    mouse_data_dict = get_mouse_data_dict("visual_and_COT_data")
-    # Build the app
-    app = app_builder(mouse_data_dict)
-    # Run the app
-    app.run(debug=True)
-
+    app = app_builder('visual_and_COT_data')
+    app.run(debug=True, port=8051)

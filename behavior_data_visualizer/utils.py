@@ -4,6 +4,8 @@ from lecilab_behavior_analysis import utils as ut
 from lecilab_behavior_analysis import df_transforms as dft
 import plotly.express as px
 import socket
+import pandas as pd
+from pathlib import Path
 
 def set_mouse_data_dict(data_dict):
     global mouse_data_dict
@@ -57,7 +59,19 @@ def update_performance_figure(clickData, mouse_name):
     # select the dataset
     sdf = df[df['year_month_day'] == date]
     sdf = dft.get_performance_through_trials(sdf, window=50)
-    fig = px.line(sdf, x='total_trial', y='performance_w', color='current_training_stage')
+    fig = px.line(
+        sdf,
+        x='total_trial',
+        y='performance_w',
+        color='current_training_stage',
+        hover_data={
+            'total_trial': True,
+            'performance_w': True,
+            'subject': False,
+            'task': False,
+            'date': True,
+            'trial': False,
+            })
     # put legend inside the plot
     fig.update_layout(legend=dict(
         orientation='h',
@@ -92,3 +106,74 @@ def get_data_path():
         "tectum": "/mnt/c/Users/HMARTINEZ/LeCiLab/data/behavioral_data/",
     }
     return paths.get(hostname, None)
+
+
+def display_video(clickData):
+    try:
+        total_trial = clickData['points'][0]['x']
+        print(clickData)
+    
+    except:
+        return {}
+    
+    return total_trial
+
+
+def get_video_path(project_name, mouse_name, task, date, trial):
+    # get the path to the video
+    data_path = get_data_path()
+    if data_path is None:
+        return None
+    # format date to YYYYMMDD_HHMMSS
+    date = date.replace('-', '')
+    date = date.replace(':', '')
+    date = date.replace(' ', '_')
+    # video_path = f"{data_path}/{mouse_name}/videos/{mouse_name}_{total_trial}.mp4"
+    # return video_path
+    return f"{data_path}/{project_name}/videos/{mouse_name}/{mouse_name}_{task}_{date}.mp4"
+
+
+def get_mouse_data_dict(project_name):
+        # Load the data
+        outpath = get_data_path() + project_name + "/sessions/"
+        # go through the tree and get the data
+        mouse_data_dict = {}
+        
+        # get the animals from the path
+        for path in Path(outpath).iterdir():
+            # check if the path is a directory
+            if path.is_dir():
+                # check if the path has a csv file
+                if any(path.glob(f'{path.name}.csv')):
+                    # read that csv file if the animal is 008 # REMOVE ME
+                    if path.name == 'ACV008':
+                        data = pd.read_csv(path / f'{path.name}.csv', sep=';')
+                        # get the first 5000 rows
+                        data = data.head(5000)
+                        # add columns
+                        data = dft.add_day_column_to_df(data)
+                        # add it to the dictionary
+                        mouse_data_dict[path.name] = data
+        # sort the dictionary
+        mouse_data_dict = dict(sorted(mouse_data_dict.items()))   
+        # pass it to utils to make it global
+        set_mouse_data_dict(mouse_data_dict)
+        # return the data
+        return mouse_data_dict
+
+
+def get_seconds_of_trial(subject, date, trial_number):
+    try:
+        df = mouse_data_dict[subject]
+        session_df = df[df.date == date]
+    except:
+        return {}
+    
+    # get the timestamp of the first trial
+    start_of_first_trial = session_df.iloc[0].TRIAL_START
+    # get the timestamp of the trial
+    trial_start = session_df[session_df['trial'] == trial_number].TRIAL_START.values[0]
+    # calculate the difference in seconds
+    trial_start_seconds = (trial_start - start_of_first_trial)
+
+    return trial_start_seconds
