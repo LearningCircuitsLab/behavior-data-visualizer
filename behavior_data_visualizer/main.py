@@ -77,10 +77,10 @@ def app_builder(project_name):
                         options=[{'label': key, 'value': key} for key in mouse_data_dict.keys()],
                         value=None,
                         multi=False,
-                        style={'width': '5%'}
+                        style={'width': '10%'}
                     ),
                     dash.dcc.Graph(id='reactive-calendar', style={'width': '55%'}),
-                    dash.html.Pre(id='single-mouse-text', style={'flex': '1', 'width': '40%'}),
+                    dash.html.Pre(id='single-mouse-text', style={'flex': '1', 'width': '35%'}),
                 ], style={'display': 'flex', 'flex-direction': 'row'}),
                 dash.html.Div([
                     dash.dcc.Graph(id='single-mouse-performance', style={'flex': '1', 'height': '15%', 'width': '35%'}),
