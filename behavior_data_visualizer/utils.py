@@ -10,6 +10,7 @@ from pathlib import Path
 def set_mouse_data_dict(data_dict):
     global mouse_data_dict
     mouse_data_dict = data_dict
+    print(mouse_data_dict.keys())
 
 def fig_to_uri(fig):
     buf = io.BytesIO()
@@ -34,10 +35,9 @@ def get_diccionary_of_dates(df):
         dates_dict[key] = date
     return dates_dict
 
-def display_click_data(clickData, mouse_name):
+def display_click_data(clickData, df):
     try:
         date = clickData['points'][0]['customdata'][0]
-        df = mouse_data_dict[mouse_name]
     except:
         return 'No date selected'
     # select the dataset
@@ -50,10 +50,9 @@ def display_click_data(clickData, mouse_name):
 #     [dash.dependencies.Input('reactive-calendar', 'clickData'),
 #     dash.dependencies.Input('single-mouse-dropdown', 'value')],
 # )
-def update_performance_figure(clickData, mouse_name):
+def update_performance_figure(clickData, df):
     try:
         date = clickData['points'][0]['customdata'][0]
-        df = mouse_data_dict[mouse_name]
     except:
         return {}
     # select the dataset
@@ -84,10 +83,9 @@ def update_performance_figure(clickData, mouse_name):
     return fig
 
 
-def update_psychometric_figure(clickData, mouse_name):
+def update_psychometric_figure(clickData, df):
     try:
         date = clickData['points'][0]['customdata'][0]
-        df = mouse_data_dict[mouse_name]
     except:
         return {}
     # select the dataset
@@ -137,7 +135,7 @@ def get_mouse_data_dict(project_name):
         # Load the data
         outpath = get_data_path() + project_name + "/sessions/"
         # go through the tree and get the data
-        mouse_data_dict = {}
+        m_data_dict = {}
         
         # get the animals from the path
         for path in Path(outpath).iterdir():
@@ -149,13 +147,25 @@ def get_mouse_data_dict(project_name):
                     # add columns
                     data = dft.add_day_column_to_df(data)
                     # add it to the dictionary
-                    mouse_data_dict[path.name] = data
+                    m_data_dict[path.name] = data
         # sort the dictionary
-        mouse_data_dict = dict(sorted(mouse_data_dict.items()))   
+        m_data_dict = dict(sorted(m_data_dict.items()))   
         # pass it to utils to make it global
-        set_mouse_data_dict(mouse_data_dict)
+        set_mouse_data_dict(m_data_dict)
         # return the data
         return mouse_data_dict
+
+
+def load_mouse_data(project_name, mouse_name):
+    outpath = get_data_path() + project_name + "/sessions/"
+    path = Path(outpath) / mouse_name
+    if path.is_dir():
+        if any(path.glob(f'{path.name}.csv')):
+            data = pd.read_csv(path / f'{path.name}.csv', sep=';')
+            # add columns
+            data = dft.add_day_column_to_df(data)
+            return data
+    return None
 
 
 def get_seconds_of_trial(subject, date, trial_number):
@@ -173,3 +183,26 @@ def get_seconds_of_trial(subject, date, trial_number):
     trial_start_seconds = (trial_start - start_of_first_trial)
 
     return trial_start_seconds
+
+
+def get_list_of_projects():
+    data_path = get_data_path()
+    if data_path is None:
+        return []
+    projects = []
+    for path in Path(data_path).iterdir():
+        if path.is_dir():
+            projects.append(path.name)
+    return projects
+
+
+def get_list_of_mice(project_name):
+    data_path = get_data_path()
+    if data_path is None:
+        return []
+    mice = []
+    outpath = data_path + project_name + "/sessions/"
+    for path in Path(outpath).iterdir():
+        if path.is_dir():
+            mice.append(path.name)
+    return mice
