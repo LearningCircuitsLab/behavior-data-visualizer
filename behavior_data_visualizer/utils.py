@@ -42,7 +42,11 @@ def display_click_data(clickData, df):
         return 'No date selected'
     # select the dataset
     sdf = df[df['year_month_day'] == date]
-    return ut.get_text_from_subset_df(sdf)
+    try:
+        text_to_return = ut.get_text_from_subset_df(sdf)
+    except:
+        text_to_return = 'Error retrieving data'
+    return text_to_return
 
 # # Update the performance figure
 # @app.callback(
@@ -60,6 +64,8 @@ def update_performance_figure(clickData, df):
     sdf = dft.get_performance_through_trials(sdf, window=50)
     # find the index of the session changes and add as vertical lines to the performance plot
     session_changes = sdf[sdf.session != sdf.session.shift(1)].index
+    if "stimulus_modality" not in sdf.columns:
+        sdf['stimulus_modality'] = 'unknown'
     fig = px.scatter(
         sdf,
         x='total_trial',
