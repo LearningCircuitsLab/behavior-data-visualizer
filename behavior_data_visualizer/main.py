@@ -240,7 +240,7 @@ def app_builder():
                 return dash.html.Div(f"Error linking video: {e}"), dash.no_update
 
         # convert trial to seconds
-        start_time = utils.get_seconds_of_trial(subject, date, trial)
+        start_time = utils.get_seconds_of_trial(mouse_data_dict[subject], date, trial)
         print(start_time)
         video_component = dash.html.Video(
             id="video-player",

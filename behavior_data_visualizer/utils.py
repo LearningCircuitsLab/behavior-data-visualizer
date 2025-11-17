@@ -168,9 +168,8 @@ def load_mouse_data(project_name, mouse_name):
     return None
 
 
-def get_seconds_of_trial(subject, date, trial_number):
+def get_seconds_of_trial(df, date, trial_number):
     try:
-        df = mouse_data_dict[subject]
         session_df = df[df.date == date]
     except:
         return {}
