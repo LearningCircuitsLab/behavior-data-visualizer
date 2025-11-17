@@ -162,7 +162,6 @@ def app_builder():
         ],
     )
     def update_mouse_data_dict(selected_project, selected_mouse):
-        print(mouse_data_dict.keys())
         if selected_project is None or selected_mouse is None:
             return False
         # check if the data is already loaded
@@ -242,6 +241,7 @@ def app_builder():
 
         # convert trial to seconds
         start_time = utils.get_seconds_of_trial(subject, date, trial)
+        print(start_time)
         video_component = dash.html.Video(
             id="video-player",
             src=f"/videos/{video_filename}",
