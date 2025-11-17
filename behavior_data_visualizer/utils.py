@@ -60,7 +60,7 @@ def update_performance_figure(clickData, df):
     sdf = dft.get_performance_through_trials(sdf, window=50)
     # find the index of the session changes and add as vertical lines to the performance plot
     session_changes = sdf[sdf.session != sdf.session.shift(1)].index
-    fig = px.line(
+    fig = px.scatter(
         sdf,
         x='total_trial',
         y='performance_w',
@@ -210,4 +210,5 @@ def get_list_of_mice(project_name):
     for path in Path(outpath).iterdir():
         if path.is_dir():
             mice.append(path.name)
-    return mice
+    # sort the list
+    return sorted(mice)
