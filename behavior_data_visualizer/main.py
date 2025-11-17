@@ -241,7 +241,6 @@ def app_builder():
 
         # convert trial to seconds
         start_time = utils.get_seconds_of_trial(mouse_data_dict[subject], date, trial)
-        print(start_time)
         video_component = dash.html.Video(
             id="video-player",
             src=f"/videos/{video_filename}",

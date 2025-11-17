@@ -58,11 +58,13 @@ def update_performance_figure(clickData, df):
     # select the dataset
     sdf = df[df['year_month_day'] == date]
     sdf = dft.get_performance_through_trials(sdf, window=50)
+    # find the index of the session changes and add as vertical lines to the performance plot
+    session_changes = sdf[sdf.session != sdf.session.shift(1)].index
     fig = px.line(
         sdf,
         x='total_trial',
         y='performance_w',
-        color='current_training_stage',
+        color='stimulus_modality',
         hover_data={
             'total_trial': True,
             'performance_w': True,
@@ -71,6 +73,10 @@ def update_performance_figure(clickData, df):
             'date': True,
             'trial': False,
             })
+    # add vertical lines for session changes
+    for session_change in session_changes[1:]:
+        total_trial = sdf.loc[session_change, 'total_trial']
+        fig.add_vline(x=total_trial, line_width=1, line_dash="dash", line_color="grey")
     # put legend inside the plot
     fig.update_layout(legend=dict(
         orientation='h',
