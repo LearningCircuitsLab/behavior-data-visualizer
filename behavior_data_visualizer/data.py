@@ -143,6 +143,19 @@ def video_path(project_name: str, mouse_name: str, task: str, session_date: str)
     return root / project_name / "videos" / mouse_name / f"{mouse_name}_{task}_{stamp}.mp4"
 
 
+def video_folder(project_name: str, mouse_name: str) -> Optional[Path]:
+    """
+    Folder with the videos of a mouse (<project>/videos/<mouse>), or None if
+    the project or the mouse is not one of the data folder (so that only
+    videos of the data folder can be sent).
+    """
+    root = get_data_path()
+    if root is None or project_name not in get_list_of_projects() or mouse_name not in get_list_of_mice(project_name):
+        return None
+    folder = root / project_name / "videos" / mouse_name
+    return folder if folder.is_dir() else None
+
+
 def seconds_of_trial(df: pd.DataFrame, session_date: str, trial_number: int) -> Optional[float]:
     """Seconds from the start of the first trial of a session to the start of one of its trials."""
     if df.empty:

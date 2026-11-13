@@ -1,8 +1,11 @@
+import shutil
+import stat
+
 import dash
 import pytest
 
 from behavior_data_visualizer import data, main
-from tests.conftest import LOCATION, VISUAL_COT
+from tests.conftest import LOCATION, SAMPLE_DATA, VISUAL_COT
 
 
 @pytest.fixture
@@ -55,21 +58,59 @@ def test_video_not_found(app):
     assert start is dash.no_update
 
 
-def test_video_is_linked_and_served(app, tmp_path, monkeypatch, visual_cot):
-    session = visual_cot[visual_cot["year_month_day"] == "2025-06-02"]
-    session_date, trial = str(session["date"].iloc[0]), int(session["trial"].iloc[4])
+@pytest.fixture
+def data_with_video(tmp_path, monkeypatch):
+    """A data folder with ACV008 and a (fake) video of its session of 2025-06-02, read-only."""
+    sessions = tmp_path / VISUAL_COT[0] / "sessions" / "ACV008"
+    sessions.mkdir(parents=True)
+    shutil.copy(SAMPLE_DATA / VISUAL_COT[0] / "sessions" / "ACV008" / "ACV008.csv.gz", sessions)
+    monkeypatch.setenv("LECILAB_DATA_PATH", str(tmp_path))
+    data._load_mouse_data.cache_clear()
+    df = data.load_mouse_data(*VISUAL_COT)
+    session = df[df["year_month_day"] == "2025-06-02"]
+    session_date = str(session["date"].iloc[0])
     video = data.video_path(VISUAL_COT[0], "ACV008", "TwoAFC", session_date)
-    copy = tmp_path / "videos" / video.name
-    copy.parent.mkdir()
-    copy.write_bytes(b"0" * 1000)
-    monkeypatch.setattr(data, "video_path", lambda *args: copy)
-    monkeypatch.setattr(main, "STATIC_PATH", tmp_path / "static")
-    (tmp_path / "static").mkdir()
+    video.parent.mkdir(parents=True)
+    video.write_bytes(b"0123456789" * 100)
+    # the user running the dashboard may only be able to read the data
+    for path in (video, video.parent):
+        path.chmod(stat.S_IREAD | stat.S_IEXEC if path.is_dir() else stat.S_IREAD)
+    yield df, session_date, int(session["trial"].iloc[4]), video
+    video.parent.chmod(stat.S_IRWXU)
+    video.chmod(stat.S_IRWXU)
+
+
+def test_video_is_served_from_the_data_folder(data_with_video):
+    df, session_date, trial, video = data_with_video
+    app = main.app_builder()
     click = {"points": [{"customdata": ["ACV008", "TwoAFC", session_date, trial]}]}
-    children, start = callback(app, "single-mouse-video.children")(click, None, VISUAL_COT[0])
-    assert children.src == f"/videos/{video.name}"
-    assert start == {"time": data.seconds_of_trial(visual_cot, session_date, trial)}
-    assert (tmp_path / "static" / video.name).resolve() == copy
+    player, start = callback(app, "single-mouse-video.children")(click, None, VISUAL_COT[0])
+    assert player.src == f"/videos/{VISUAL_COT[0]}/ACV008/{video.name}"
+    assert start == {"time": data.seconds_of_trial(df, session_date, trial)}
+    client = app.server.test_client()
+    response = client.get(player.src)
+    assert response.status_code == 200 and response.data == video.read_bytes()
+    response.close()
+    partial = client.get(player.src, headers={"Range": "bytes=0-9"})  # the player asks for parts
+    assert partial.status_code == 206 and partial.data == b"0123456789"
+    partial.close()
+
+
+def test_only_videos_of_the_data_folder_are_served(data_with_video):
+    client = main.app_builder().server.test_client()
+    video = data_with_video[3]
+    for url in (
+        f"/videos/not_a_project/ACV008/{video.name}",
+        f"/videos/{VISUAL_COT[0]}/nobody/{video.name}",
+        f"/videos/{VISUAL_COT[0]}/ACV008/missing.mp4",
+        f"/videos/{VISUAL_COT[0]}/..%2Fsessions/ACV008.csv.gz",
+        "/videos/../sessions/ACV008/ACV008.csv.gz",
+        f"/videos/{VISUAL_COT[0]}/ACV008/..%2F..%2Fsessions%2FACV008%2FACV008.csv.gz",
+    ):
+        response = client.get(url)
+        # not found, or (an address that is not a video) the page of the dashboard
+        assert response.status_code == 404 or response.mimetype == "text/html", url
+        response.close()
 
 
 def test_report_images(visual_cot):

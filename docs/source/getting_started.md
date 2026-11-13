@@ -24,6 +24,10 @@ The data folder has one folder per project:
 - `<project>/<setup>/events.csv`: the events of each setup (box),
 - `<project>/videos/<mouse>/<mouse>_<task>_<YYYYMMDD_HHMMSS>.mp4`: the video of each session.
 
+The dashboard only reads this folder (the videos are sent from it), so any
+user who can read the data can run it, even from someone else's copy of the
+code.
+
 It is the folder of lecilab-behavior-analysis: the `LECILAB_DATA_PATH`
 environment variable if it is set, otherwise the folder of the computer
 (`lecilab_behavior_analysis.io.server.get_outpath`), otherwise

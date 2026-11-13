@@ -16,19 +16,14 @@ The data is read from the folder of lecilab_behavior_analysis (the
 LECILAB_DATA_PATH environment variable, or the folder of this computer).
 """
 
-import os
 import threading
-from pathlib import Path
 
 import dash
 from dash import dcc, html
 from dash.exceptions import PreventUpdate
-from flask import send_from_directory
+from flask import abort, send_from_directory
 
 from behavior_data_visualizer import data, figures
-
-# videos are linked here to be served by the app (/videos/<file>)
-STATIC_PATH = Path(__file__).resolve().parents[1] / "static"
 
 # matplotlib is not thread safe: one report figure at a time
 REPORT_LOCK = threading.Lock()
@@ -39,18 +34,20 @@ BUTTON = {"margin-right": "8px", "padding": "6px 12px", "cursor": "pointer"}
 
 
 def app_builder():
-    STATIC_PATH.mkdir(exist_ok=True)
-
     # get the list of the projects
     projects_list = data.get_list_of_projects()
     data_path = data.get_data_path()
 
     app = dash.Dash(__name__, title="Behavior Explorer")
 
-    # Serve static files route
-    @app.server.route("/videos/<path:filename>")
-    def serve_video(filename):
-        return send_from_directory(STATIC_PATH, filename)
+    # the videos are sent from the data folder (nothing is written, so any
+    # user who can read the data can watch them)
+    @app.server.route("/videos/<project>/<mouse>/<filename>")
+    def serve_video(project, mouse, filename):
+        folder = data.video_folder(project, mouse)
+        if folder is None:
+            abort(404)
+        return send_from_directory(folder, filename)
 
     # Clientside callback to set video start time
     app.clientside_callback(
@@ -339,17 +336,10 @@ def app_builder():
         if video_path is None or not video_path.exists():
             return html.Div(f"No video of this session: {video_path}"), dash.no_update
 
-        static_video_path = STATIC_PATH / video_path.name
-        if not static_video_path.exists():
-            try:
-                os.symlink(video_path, static_video_path)
-            except OSError as e:
-                return html.Div(f"Error linking video: {e}"), dash.no_update
-
         start_time = data.seconds_of_trial(data.load_mouse_data(project_name, subject), session_date, trial)
         video_component = html.Video(
             id="video-player",
-            src=f"/videos/{video_path.name}",
+            src=f"/videos/{project_name}/{subject}/{video_path.name}",
             controls=True,
             autoPlay=True,
             muted=True,
