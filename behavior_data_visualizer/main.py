@@ -355,7 +355,7 @@ def app_builder():
             muted=True,
             style={"width": "100%"},
         )
-        return [html.Div(f"{video_path.name}, trial {int(trial)}"), video_component], {"time": start_time or 0}
+        return video_component, {"time": start_time or 0}
 
     # the figures of the daily report, drawn when their button is clicked
     # (and removed when another day is chosen)

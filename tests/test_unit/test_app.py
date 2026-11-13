@@ -67,7 +67,7 @@ def test_video_is_linked_and_served(app, tmp_path, monkeypatch, visual_cot):
     (tmp_path / "static").mkdir()
     click = {"points": [{"customdata": ["ACV008", "TwoAFC", session_date, trial]}]}
     children, start = callback(app, "single-mouse-video.children")(click, None, VISUAL_COT[0])
-    assert children[1].src == f"/videos/{video.name}"
+    assert children.src == f"/videos/{video.name}"
     assert start == {"time": data.seconds_of_trial(visual_cot, session_date, trial)}
     assert (tmp_path / "static" / video.name).resolve() == copy
 
