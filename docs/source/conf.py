@@ -121,3 +121,6 @@ sitemap_url_scheme = "{link}"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
+
+# the address of the dashboard when it runs on this computer
+linkcheck_ignore = [r"http://127\.0\.0\.1:\d+.*", r"http://localhost:\d+.*"]
