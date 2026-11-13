@@ -14,7 +14,7 @@ import setuptools_scm
 # Used when building API docs, put the dependencies
 # of any class you are documenting here
 # not needed to build the documentation
-autodoc_mock_imports = ["lecilab_behavior_analysis", "dash", "flask"]
+autodoc_mock_imports = ["lecilab_behavior_analysis", "dash", "flask", "matplotlib", "numpy", "pandas", "plotly"]
 
 # Add the module path to sys.path here.
 # If the directory is relative to the documentation root,
