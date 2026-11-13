@@ -1,25 +1,20 @@
 API
 ===
 
-math
+data
 ----
 
-.. currentmodule:: behavior_data_visualizer.math
+.. automodule:: behavior_data_visualizer.data
+   :members:
 
-.. autosummary::
-    :toctree: api_generated
-    :template: function.rst
+figures
+-------
 
-    add_two_integers
-    subtract_two_integers
+.. automodule:: behavior_data_visualizer.figures
+   :members:
 
-greetings
----------
+main
+----
 
-.. currentmodule:: behavior_data_visualizer.greetings
-
-.. autosummary::
-    :toctree: api_generated
-    :template: class.rst
-
-    Greetings
+.. automodule:: behavior_data_visualizer.main
+   :members:

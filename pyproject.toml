@@ -3,13 +3,17 @@ name = "behavior-data-visualizer"
 authors = [{name = "Hernando M Vergara", email= "hvergarabio@gmail.com"}]
 description = "A dash app to look at behavior data"
 readme = "README.md"
-requires-python = ">=3.9.0"
+requires-python = ">=3.11.0"
 dynamic = ["version"]
 
 dependencies = [
   "dash",
-  "plotly_calplot",
-  "fire",
+  "flask",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "plotly",
+  "lecilab-behavior-analysis @ git+https://github.com/LearningCircuitsLab/lecilab-behavior-analysis.git",
 ]
 
 license = {text = "BSD-3-Clause"}
@@ -18,9 +22,9 @@ classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "License :: OSI Approved :: BSD License",
 ]
@@ -56,13 +60,15 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 include-package-data = true
 
+
 [tool.setuptools.packages.find]
 include = ["behavior_data_visualizer*"]
 exclude = ["tests", "docs*"]
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=behavior_data_visualizer"
+# dash registers a pytest plugin (for browser tests) that is not used here
+addopts = "--cov=behavior_data_visualizer -p no:dash"
 filterwarnings = [
     "error",
 ]
@@ -82,7 +88,7 @@ ignore = [
 
 
 [tool.ruff]
-line-length = 79
+line-length = 120
 exclude = ["__init__.py", "build", ".eggs"]
 lint.select = [
   "E",   # pycodestyle errors
@@ -103,14 +109,14 @@ docstring-code-format = true # Also format code in docstrings (e.g. examples)
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{39,310,311}
+envlist = py{311,312,313}
 isolated_build = True
 
 [gh-actions]
 python =
-    3.9: py39
-    3.10: py310
     3.11: py311
+    3.12: py312
+    3.13: py313
 
 [testenv]
 extras =
