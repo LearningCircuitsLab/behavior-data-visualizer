@@ -1,5 +1,7 @@
 # behavior-data-visualizer
 
+Documentation: <https://learningcircuitslab.github.io/behavior-data-visualizer/>
+
 The Training Village Behavior Explorer: a web dashboard to look at the
 behavior of the mice of a project, day by day. It reads the same data as the
 daily reports
@@ -27,7 +29,8 @@ ssh -L 8050:localhost:8050 <your user>@minibaps2
 ```
 
 and open <http://localhost:8050>. Several people can use it at once. How it is
-installed and kept running: `docs/source/shared_dashboard.md`.
+installed and kept running:
+[the shared dashboard](https://learningcircuitslab.github.io/behavior-data-visualizer/shared_dashboard.html).
 
 ## Running it yourself
 
@@ -48,7 +51,7 @@ tests:
 LECILAB_DATA_PATH=tests/data/sample_data python behavior_data_visualizer/main.py
 ```
 
-See `docs/source/getting_started.md` for the details.
+See [getting started](https://learningcircuitslab.github.io/behavior-data-visualizer/getting_started.html) for the details.
 
 ## Development
 

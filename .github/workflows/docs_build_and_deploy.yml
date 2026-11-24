@@ -1,10 +1,9 @@
 name: Build Sphinx docs and deploy to GitHub Pages
 
-# Generate the documentation on all merges to main, all pull requests, or by
-# manual workflow dispatch. The build job can be used as a CI check that the
-# docs still build successfully. The deploy job only runs when a tag is
-# pushed and actually moves the generated html to the gh-pages branch
-# (which triggers a GitHub pages deployment).
+# Builds the documentation on every push to main, on pull requests (as a
+# check that it still builds) and by manual dispatch. On pushes to main, the
+# site is moved to the gh-pages branch, which GitHub Pages publishes at
+# https://learningcircuitslab.github.io/behavior-data-visualizer/
 on:
   push:
     branches:
@@ -34,7 +33,7 @@ jobs:
     needs: build_sphinx_docs
     permissions:
       contents: write
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v2
