@@ -14,7 +14,7 @@
 # code of this folder. Settings (environment variables):
 #
 #   BDV_PYTHON     python with the dependencies installed (default: python)
-#   BDV_PORT       port (default: 8050)
+#   BDV_PORT       port (default: 8055; 8050 is left for personal dashboards)
 #   BDV_STATE_DIR  where the log and the process id are kept
 #                  (default: ~/.local/state/behavior-explorer)
 #
@@ -23,7 +23,7 @@ set -u
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PYTHON="${BDV_PYTHON:-python}"
-PORT="${BDV_PORT:-8050}"
+PORT="${BDV_PORT:-8055}"
 STATE_DIR="${BDV_STATE_DIR:-$HOME/.local/state/behavior-explorer}"
 PID_FILE="$STATE_DIR/dashboard.pid"
 LOG_FILE="$STATE_DIR/dashboard.log"

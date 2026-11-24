@@ -21,14 +21,14 @@ with [lecilab-behavior-analysis](https://github.com/LearningCircuitsLab/lecilab-
 
 ## Using it on the cluster
 
-One dashboard runs all the time on minibaps2, for everyone. From your
-computer:
+One dashboard runs all the time on minibaps2, on port 8055, for everyone.
+Add an `explorer` entry to your `~/.ssh/config` (see the guide below), then:
 
 ```bash
-ssh -L 8050:localhost:8050 <your user>@minibaps2
+ssh -N explorer
 ```
 
-and open <http://localhost:8050>. Several people can use it at once. How it is
+and open <http://localhost:8055>. Several people can use it at once. How it is
 installed and kept running:
 [the shared dashboard](https://learningcircuitslab.github.io/behavior-data-visualizer/shared_dashboard.html).
 
