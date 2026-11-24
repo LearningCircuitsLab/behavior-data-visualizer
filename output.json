@@ -1,8 +1,7 @@
 {"filename": "api_index.rst", "lineno": 13, "status": "ignored", "code": 0, "uri": "http://127.0.0.1:8050", "info": ""}
 {"filename": "api_index.rst", "lineno": 13, "status": "ignored", "code": 0, "uri": "http://127.0.0.1:8050/status", "info": ""}
-{"filename": "shared_dashboard.md", "lineno": 17, "status": "ignored", "code": 0, "uri": "http://localhost:8050", "info": ""}
-{"filename": "shared_dashboard.md", "lineno": 22, "status": "ignored", "code": 0, "uri": "http://localhost:8050/status", "info": ""}
-{"filename": "shared_dashboard.md", "lineno": 29, "status": "ignored", "code": 0, "uri": "http://localhost:8060", "info": ""}
+{"filename": "shared_dashboard.md", "lineno": 37, "status": "ignored", "code": 0, "uri": "http://localhost:8055", "info": ""}
+{"filename": "shared_dashboard.md", "lineno": 41, "status": "ignored", "code": 0, "uri": "http://localhost:8055/status", "info": ""}
 {"filename": "getting_started.md", "lineno": 3, "status": "working", "code": 0, "uri": "https://dash.plotly.com/", "info": ""}
 {"filename": "getting_started.md", "lineno": 3, "status": "working", "code": 0, "uri": "https://github.com/LearningCircuitsLab/lecilab-behavior-analysis", "info": ""}
 {"filename": "getting_started.md", "lineno": 3, "status": "working", "code": 0, "uri": "https://github.com/LearningCircuitsLab/village-report-generator", "info": ""}

@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=bad25a1d"></script>
+    <script src="_static/documentation_options.js?v=ffd3ac96"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">behavior-data-visualizer v0.1.dev1+g0f4628c7e</p>
+    <p class="title logo__title">behavior-data-visualizer v0.1.dev1+gd82fa6308</p>
   
 </a></div>
     
@@ -390,29 +390,49 @@ date by a script and two cron jobs. Nobody else needs to install or start
 anything.</p>
 <section id="using-it">
 <h2>Using it<a class="headerlink" href="#using-it" title="Link to this heading">#</a></h2>
-<p>From your computer, open a tunnel to the cluster (with your own user, any
-user of the cluster can use it):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">8050</span>:localhost:8050<span class="w"> </span>&lt;your<span class="w"> </span>user&gt;@minibaps2
+<p>The dashboard runs on minibaps2, on port <strong>8055</strong> (a port used only by it).
+You reach it through an SSH tunnel from your computer.</p>
+<section id="once-add-an-entry-to-your-ssh-configuration">
+<h3>Once: add an entry to your SSH configuration<a class="headerlink" href="#once-add-an-entry-to-your-ssh-configuration" title="Link to this heading">#</a></h3>
+<p>On your computer, add this to <code class="docutils literal notranslate"><span class="pre">~/.ssh/config</span></code>, with the same address, user
+and jump host that you use to log in to minibaps2 (look at your existing
+entry for it):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Host explorer
+    HostName &lt;address of minibaps2&gt;
+    User &lt;your user on the cluster&gt;
+    ProxyJump &lt;your entry for the cluster&gt;
+    LocalForward 8055 127.0.0.1:8055
 </pre></div>
 </div>
-<p>and open <a class="reference external" href="http://localhost:8050">http://localhost:8050</a>. Several people can use it at the same
-time: each browser has its own choices (project, mouse, day, zoom, video).
-The trials of a mouse are read once and shared, so a mouse someone opened
-before is fast for everyone.</p>
-<p><a class="reference external" href="http://localhost:8050/status">http://localhost:8050/status</a> shows the code it runs (the commit), since
+<p><code class="docutils literal notranslate"><span class="pre">LocalForward</span></code> connects port 8055 of your computer to port 8055 of
+minibaps2, where the dashboard is. Nothing else should use port 8055 on your
+computer (your other entries may forward 8050: that is fine).</p>
+</section>
+<section id="every-time">
+<h3>Every time<a class="headerlink" href="#every-time" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-N<span class="w"> </span>explorer
+</pre></div>
+</div>
+<p>(<code class="docutils literal notranslate"><span class="pre">-N</span></code>: only the tunnel, no shell: the terminal seems to hang, which is
+normal; leave it open, stop it with Ctrl+C) and open
+<a class="reference external" href="http://localhost:8055">http://localhost:8055</a>.</p>
+<p>Several people can use it at the same time: each browser has its own
+choices (project, mouse, day, zoom, video). The trials of a mouse are read
+once and shared, so a mouse someone opened before is fast for everyone.
+<a class="reference external" href="http://localhost:8055/status">http://localhost:8055/status</a> shows the code it runs (the commit), since
 when, and the mice in memory.</p>
 <p>If the page does not load:</p>
 <ul class="simple">
-<li><p>the tunnel must be open (the <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-L</span></code> command above, in a terminal that
-stays open),</p></li>
-<li><p>if something else on your computer uses port 8050, use another local port:
-<code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-L</span> <span class="pre">8060:localhost:8050</span> <span class="pre">&lt;your</span> <span class="pre">user&gt;&#64;minibaps2</span></code> and open
-<a class="reference external" href="http://localhost:8060">http://localhost:8060</a>,</p></li>
+<li><p>the tunnel must be open (<code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-N</span> <span class="pre">explorer</span></code>, in a terminal that stays
+open); if ssh says <code class="docutils literal notranslate"><span class="pre">bind:</span> <span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code>, something on your
+computer already uses port 8055 (often another <code class="docutils literal notranslate"><span class="pre">explorer</span></code> tunnel that is
+still open: close it),</p></li>
 <li><p>the dashboard may be restarting (after an update, for a few seconds), or
 stopped: the cron job starts it again within 5 minutes.</p></li>
 </ul>
 <p>It is only reachable from the cluster (it listens on localhost) and has no
 password: anyone who can log in to the cluster can use it.</p>
+</section>
 </section>
 <section id="looking-after-it-as-training-village">
 <span id="looking-after-it-as-training_village"></span><h2>Looking after it (as <code class="docutils literal notranslate"><span class="pre">training_village</span></code>)<a class="headerlink" href="#looking-after-it-as-training-village" title="Link to this heading">#</a></h2>
@@ -422,12 +442,15 @@ password: anyone who can log in to the cluster can use it.</p>
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/LearningCircuitsLab/behavior-data-visualizer.git
 </pre></div>
 </div>
-<p>The python is <code class="docutils literal notranslate"><span class="pre">/home/training_village/miniconda3/bin/python</span></code>, with
+<p>The python is the one of the <code class="docutils literal notranslate"><span class="pre">report</span></code> conda environment,
+<code class="docutils literal notranslate"><span class="pre">/home/training_village/miniconda3/envs/report/bin/python</span></code>. It is used by its
+full path, so the environment does not need to be activated (neither here nor
+in cron). Find it with <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">report;</span> <span class="pre">which</span> <span class="pre">python</span></code>. It runs with
 lecilab-behavior-analysis installed from its clone in <code class="docutils literal notranslate"><span class="pre">~/Github</span></code> (editable,
 so that it is updated by pulling it). Install the dashboard without its
 dependencies (otherwise pip would replace that lecilab-behavior-analysis with
 a copy from GitHub), and then its other dependencies:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PY</span><span class="o">=</span>/home/training_village/miniconda3/bin/python
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PY</span><span class="o">=</span>/home/training_village/miniconda3/envs/report/bin/python
 <span class="nv">$PY</span><span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>~/Github/lecilab-behavior-analysis
 <span class="nv">$PY</span><span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>~/Github/behavior-data-visualizer<span class="w"> </span>--no-deps
 <span class="nv">$PY</span><span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>dash<span class="w"> </span>flask<span class="w"> </span>matplotlib<span class="w"> </span>numpy<span class="w"> </span>pandas<span class="w"> </span>plotly<span class="w"> </span>waitress
@@ -438,7 +461,7 @@ a copy from GitHub), and then its other dependencies:</p>
 </section>
 <section id="start-stop-check">
 <h3>Start, stop, check<a class="headerlink" href="#start-stop-check" title="Link to this heading">#</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">BDV_PYTHON</span><span class="o">=</span>/home/training_village/miniconda3/bin/python
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">BDV_PYTHON</span><span class="o">=</span>/home/training_village/miniconda3/envs/report/bin/python
 ~/Github/behavior-data-visualizer/scripts/dashboard_service.sh<span class="w"> </span>start
 ~/Github/behavior-data-visualizer/scripts/dashboard_service.sh<span class="w"> </span>status
 ~/Github/behavior-data-visualizer/scripts/dashboard_service.sh<span class="w"> </span>stop
@@ -452,7 +475,7 @@ code of <code class="docutils literal notranslate"><span class="pre">~/Github/be
 <section id="keep-it-running-and-up-to-date-cron">
 <h3>Keep it running and up to date (cron)<a class="headerlink" href="#keep-it-running-and-up-to-date-cron" title="Link to this heading">#</a></h3>
 <p>Add these lines with <code class="docutils literal notranslate"><span class="pre">crontab</span> <span class="pre">-e</span></code> (as <code class="docutils literal notranslate"><span class="pre">training_village</span></code>):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>BDV_PYTHON=/home/training_village/miniconda3/bin/python
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>BDV_PYTHON=/home/training_village/miniconda3/envs/report/bin/python
 # start it if it is not running (after a crash or a reboot)
 */5 * * * * /home/training_village/Github/behavior-data-visualizer/scripts/dashboard_service.sh ensure
 @reboot /home/training_village/Github/behavior-data-visualizer/scripts/dashboard_service.sh ensure
@@ -471,7 +494,7 @@ it right away, run <code class="docutils literal notranslate"><span class="pre">
 script):</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">BDV_PYTHON</span></code>: the python (default: <code class="docutils literal notranslate"><span class="pre">python</span></code>),</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">BDV_PORT</span></code>: the port (default: 8050),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BDV_PORT</span></code>: the port (default: 8055; personal dashboards use 8050),</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BDV_CACHE_GB</span></code>: memory for the trials of the mice opened, all users together,
 in GB (default: 4; the trials of a mouse with a long history can take close
 to 1 GB),</p></li>
@@ -480,12 +503,12 @@ to 1 GB),</p></li>
 </section>
 <section id="trying-a-branch">
 <h3>Trying a branch<a class="headerlink" href="#trying-a-branch" title="Link to this heading">#</a></h3>
-<p>Anyone can run their own dashboard (from their own clone) on another port,
-without stopping the shared one:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>behavior_data_visualizer/main.py<span class="w"> </span>--port<span class="w"> </span><span class="m">8060</span>
+<p>Anyone can run their own dashboard (from their own clone) without stopping the
+shared one: it uses port 8050 by default (<code class="docutils literal notranslate"><span class="pre">--port</span></code> for another one):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>behavior_data_visualizer/main.py
 </pre></div>
 </div>
-<p>and open a tunnel to that port.</p>
+<p>and open a tunnel to that port (e.g. <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-N</span> <span class="pre">-L</span> <span class="pre">8050:127.0.0.1:8050</span> <span class="pre">&lt;your</span> <span class="pre">entry</span> <span class="pre">for</span> <span class="pre">minibaps2&gt;</span></code>).</p>
 </section>
 </section>
 </section>
@@ -537,7 +560,11 @@ without stopping the shared one:</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-it">Using it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-it">Using it</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#once-add-an-entry-to-your-ssh-configuration">Once: add an entry to your SSH configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#every-time">Every time</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#looking-after-it-as-training-village">Looking after it (as <code class="docutils literal notranslate"><span class="pre">training_village</span></code>)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-it-once">Install it once</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-stop-check">Start, stop, check</a></li>
