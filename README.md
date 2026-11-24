@@ -17,16 +17,29 @@ with [lecilab-behavior-analysis](https://github.com/LearningCircuitsLab/lecilab-
 - Buttons to draw the figures of the daily report: the session report of the
   day and the training history up to it.
 
-## Running it
+## Using it on the cluster
+
+One dashboard runs all the time on minibaps2, for everyone. From your
+computer:
+
+```bash
+ssh -L 8050:localhost:8050 <your user>@minibaps2
+```
+
+and open <http://localhost:8050>. Several people can use it at once. How it is
+installed and kept running: `docs/source/shared_dashboard.md`.
+
+## Running it yourself
 
 Python 3.11 or newer, with this package and lecilab-behavior-analysis
 installed (`pip install -e .` in each repository):
 
 ```bash
-python behavior_data_visualizer/main.py
+behavior-explorer
 ```
 
-Then open <http://127.0.0.1:8050>. The data folder is the one of
+(or `python behavior_data_visualizer/main.py`), then open
+<http://127.0.0.1:8050>; `--port` to use another port. The data folder is the one of
 lecilab-behavior-analysis (the `LECILAB_DATA_PATH` environment variable, or
 the folder of the computer). To try it on the small sample dataset of the
 tests:

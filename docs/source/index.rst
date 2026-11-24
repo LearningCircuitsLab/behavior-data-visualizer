@@ -11,6 +11,7 @@ Welcome to behavior-data-visualizer's documentation!
    :caption: Contents:
 
    getting_started
+   shared_dashboard
    api_index
 
 A dashboard to look at the behavior of the mice of the Training Village, day by day.

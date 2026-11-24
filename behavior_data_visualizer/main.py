@@ -11,19 +11,40 @@ trials in either figure to see the same trials in the other one, and the
 psychometric curves of those trials only. The buttons draw the figures of the daily
 report: the session summary of the day and the training history up to it.
 
-Run it with: python behavior_data_visualizer/main.py (http://127.0.0.1:8050).
+Run it with: behavior-explorer (or python behavior_data_visualizer/main.py),
+then open http://127.0.0.1:8050. One dashboard can be used by several people
+at the same time; http://127.0.0.1:8050/status shows its version and the data
+in memory. See behavior-explorer --help for the options.
 The data is read from the folder of lecilab_behavior_analysis (the
 LECILAB_DATA_PATH environment variable, or the folder of this computer).
 """
 
+import argparse
+import datetime
+import socket
+import subprocess
+import sys
 import threading
+from pathlib import Path
+from typing import List, Optional
 
-import dash
-from dash import dcc, html
-from dash.exceptions import PreventUpdate
-from flask import abort, send_from_directory
+if __name__ == "__main__" and not __package__:
+    # run as a script (python .../main.py): use the package of this folder,
+    # not another copy that may be installed in this python
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from behavior_data_visualizer import data, figures
+import dash  # noqa: E402
+from dash import dcc, html  # noqa: E402
+from dash.exceptions import PreventUpdate  # noqa: E402
+from flask import Response, abort, send_from_directory  # noqa: E402
+
+from behavior_data_visualizer import data, figures  # noqa: E402
+
+HOST = "127.0.0.1"  # only reachable from this computer (through an ssh tunnel from others)
+PORT = 8050
+THREADS = 8  # requests served at the same time (several people, several figures each)
+STARTED = datetime.datetime.now()
+CODE_FOLDER = Path(__file__).resolve().parents[1]
 
 # matplotlib is not thread safe: one report figure at a time
 REPORT_LOCK = threading.Lock()
@@ -39,6 +60,10 @@ def app_builder():
     data_path = data.get_data_path()
 
     app = dash.Dash(__name__, title="Behavior Explorer")
+
+    @app.server.route("/status")
+    def status():
+        return Response(status_text(), mimetype="text/plain")
 
     # the videos are sent from the data folder (nothing is written, so any
     # user who can read the data can watch them)
@@ -497,6 +522,83 @@ def report_image(title: str, figure_name: str, df, **kwargs):
     return html.Div(children)
 
 
-if __name__ == "__main__":
+def code_version() -> str:
+    """Commit of the code that is running (or the package version if it is not a git clone)."""
+    try:
+
+        def git(*args: str) -> str:
+            command = ["git", "-C", str(CODE_FOLDER), *args]
+            return subprocess.run(command, capture_output=True, text=True, timeout=5, check=True).stdout.strip()
+
+        commit = git("log", "-1", "--format=%h (%cs) %s")
+        changed = git("status", "--porcelain", "--untracked-files=no")
+        return commit + (" + changes not committed" if changed else "")
+    except Exception:
+        from behavior_data_visualizer import __version__
+
+        return __version__
+
+
+VERSION = code_version()  # read once: the code that was loaded when the dashboard started
+
+
+def status_text() -> str:
+    """What is running: to check that a dashboard has the latest code and how much memory it uses."""
+    lines = [
+        "Behavior Explorer",
+        f"code: {VERSION}",
+        f"code folder: {CODE_FOLDER}",
+        f"python: {sys.executable}",
+        f"running since: {STARTED:%Y-%m-%d %H:%M}",
+        f"data folder: {data.get_data_path()}",
+        f"trials in memory: {data.MICE.total_bytes() / 1e9:.1f} of {data.CACHE_GB:g} GB",
+        *[f"  {line}" for line in data.MICE.summary()],
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def port_is_free(host: str, port: int) -> bool:
+    """Whether nothing is listening on the port (as waitress checks it: free right after a restart)."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as candidate:
+        if sys.platform != "win32":  # on Windows it would also allow a port in use
+            # connections that were just closed keep the port for a while
+            candidate.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            candidate.bind((host, port))
+        except OSError:
+            return False
+    return True
+
+
+def main(argv: Optional[List[str]] = None) -> None:
+    """Starts the dashboard (the behavior-explorer command)."""
+    parser = argparse.ArgumentParser(
+        prog="behavior-explorer",
+        description="Training Village Behavior Explorer. One dashboard can be used by several people at once.",
+    )
+    parser.add_argument("--port", type=int, default=PORT, help="port (default: %(default)s)")
+    parser.add_argument("--host", default=HOST, help="address to listen on (default: %(default)s, only this computer)")
+    parser.add_argument("--threads", type=int, default=THREADS, help="requests served at once (default: %(default)s)")
+    parser.add_argument("--dev", action="store_true", help="use the development server of flask (one user)")
+    args = parser.parse_args(argv)
+
+    if not port_is_free(args.host, args.port):
+        sys.exit(
+            f"Port {args.port} is in use. Another dashboard may be running: see "
+            f"http://{args.host}:{args.port}/status, or choose another port with --port."
+        )
     app = app_builder()
-    app.run(debug=False, port=8050)
+    print(f"Behavior Explorer ({VERSION}): http://{args.host}:{args.port}", flush=True)
+    try:
+        if args.dev:
+            app.run(debug=False, host=args.host, port=args.port)
+        else:
+            import waitress
+
+            waitress.serve(app.server, host=args.host, port=args.port, threads=args.threads)
+    except OSError as error:
+        sys.exit(f"Could not start the dashboard on port {args.port}: {error}")
+
+
+if __name__ == "__main__":
+    main()

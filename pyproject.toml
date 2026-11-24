@@ -13,6 +13,7 @@ dependencies = [
   "numpy",
   "pandas",
   "plotly",
+  "waitress",
   "lecilab-behavior-analysis @ git+https://github.com/LearningCircuitsLab/lecilab-behavior-analysis.git",
 ]
 
@@ -28,6 +29,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "License :: OSI Approved :: BSD License",
 ]
+
+[project.scripts]
+behavior-explorer = "behavior_data_visualizer.main:main"
 
 [project.urls]
 "Homepage" = "https://github.com/LearningCircuitsLab/behavior-data-visualizer"

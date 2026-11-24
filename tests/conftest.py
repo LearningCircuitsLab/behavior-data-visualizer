@@ -28,8 +28,7 @@ def sample_data(monkeypatch):
     from behavior_data_visualizer import data
 
     monkeypatch.setenv("LECILAB_DATA_PATH", str(SAMPLE_DATA))
-    data._load_mouse_data.cache_clear()
-    data._load_events.cache_clear()
+    data.clear_cache()
     yield SAMPLE_DATA
 
 

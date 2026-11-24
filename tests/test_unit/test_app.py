@@ -1,5 +1,9 @@
 import shutil
+import socket
 import stat
+import subprocess
+import sys
+from pathlib import Path
 
 import dash
 import pytest
@@ -65,7 +69,7 @@ def data_with_video(tmp_path, monkeypatch):
     sessions.mkdir(parents=True)
     shutil.copy(SAMPLE_DATA / VISUAL_COT[0] / "sessions" / "ACV008" / "ACV008.csv.gz", sessions)
     monkeypatch.setenv("LECILAB_DATA_PATH", str(tmp_path))
-    data._load_mouse_data.cache_clear()
+    data.clear_cache()
     df = data.load_mouse_data(*VISUAL_COT)
     session = df[df["year_month_day"] == "2025-06-02"]
     session_date = str(session["date"].iloc[0])
@@ -155,3 +159,44 @@ def test_zoom_on_trial_by_trial_and_reset(location):
     assert _patched(performance) == {"layout.xaxis.autorange": True}
     assert psychometric.layout.title.text is None
     assert sum(psychometric.data[0].customdata) == len(day)
+
+
+def test_status_page(app, visual_cot):
+    response = app.server.test_client().get("/status")
+    text = response.get_data(as_text=True)
+    assert response.status_code == 200 and response.mimetype == "text/plain"
+    assert text.startswith("Behavior Explorer\ncode: ")
+    assert f"data folder: {SAMPLE_DATA}" in text
+    assert "('visual_and_COT_data', 'ACV008'): " in text  # the mouse in memory
+
+
+def test_main_serves_with_waitress(monkeypatch, capsys):
+    import waitress
+
+    served = {}
+    monkeypatch.setattr(waitress, "serve", lambda server, **kwargs: served.update(kwargs, server=server))
+    main.main(["--port", "8123", "--threads", "4"])
+    assert served["host"] == "127.0.0.1" and served["port"] == 8123 and served["threads"] == 4
+    assert capsys.readouterr().out.strip().endswith("http://127.0.0.1:8123")
+
+
+def test_main_says_when_the_port_is_in_use():
+    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listener.bind(("127.0.0.1", 0))
+    listener.listen()
+    with listener, pytest.raises(SystemExit, match="Port .* is in use"):
+        main.main(["--port", str(listener.getsockname()[1])])
+
+
+def test_script_uses_the_package_of_its_folder(tmp_path):
+    """python .../main.py imports the code next to it, even from another folder and with nothing installed."""
+    script = Path(main.__file__)
+    result = subprocess.run(
+        [sys.executable, "-I", str(script), "--help"],  # -I: no PYTHONPATH, no current folder
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "behavior-explorer" in result.stdout

@@ -8,13 +8,20 @@ with [lecilab-behavior-analysis](https://github.com/LearningCircuitsLab/lecilab-
 
 ## Running it
 
+On the cluster, one dashboard runs all the time for everyone: see
+[the shared dashboard](shared_dashboard.md) to use it.
+
+To run one yourself:
+
 ```bash
-python behavior_data_visualizer/main.py
+behavior-explorer
 ```
 
-and open <http://127.0.0.1:8050>. It needs Python 3.11 or newer, with this
-package and lecilab-behavior-analysis installed (`pip install -e .` in each
-repository).
+(or `python behavior_data_visualizer/main.py`) and open
+<http://127.0.0.1:8050>. Options: `--port` (default 8050), `--threads`
+(requests served at once, default 8), `--dev` (the development server of
+Flask). It needs Python 3.11 or newer, with this package and
+lecilab-behavior-analysis installed (`pip install -e .` in each repository).
 
 ## The data
 

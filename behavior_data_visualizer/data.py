@@ -7,25 +7,32 @@ each setup in <project>/<setup>/ and the videos in
 <project>/videos/<subject>/. It is read with lecilab_behavior_analysis, as
 the daily reports (village-report-generator) do.
 
-The trials of the last subjects opened are kept in memory (a few, see
-CACHE_SIZE) and read again when their file changes.
+The trials of the last subjects opened are kept in memory, shared by everyone
+using the dashboard (up to CACHE_GB, see cache.py), and read again when their
+file changes.
 """
 
-import functools
+import os
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import pandas as pd
 from lecilab_behavior_analysis.io.loading import load_project_logs, load_project_trials
 from lecilab_behavior_analysis.io.server import get_outpath
+
+from behavior_data_visualizer.cache import SharedCache
 
 # folders tried, in order, when the one of lecilab_behavior_analysis (the
 # LECILAB_DATA_PATH environment variable or the folder of this computer)
 # does not exist
 FALLBACK_DATA_PATHS = ("/storage/training_village", "/archive/training_village")
 
-# subjects (and projects, for the logs) kept in memory
-CACHE_SIZE = 8
+# memory for the trials kept in memory (all users together), in GB: the
+# BDV_CACHE_GB environment variable, or 4
+CACHE_GB = float(os.environ.get("BDV_CACHE_GB", 4))
+
+MICE = SharedCache(int(CACHE_GB * 1e9), name="trials")
+EVENTS = SharedCache(int(1e9), name="events")  # the events of a project or two
 
 PERFORMANCE_WINDOW = 50
 
@@ -72,11 +79,6 @@ def _modified(path: Optional[Path]) -> float:
     return path.stat().st_mtime if path is not None and path.exists() else 0.0
 
 
-@functools.lru_cache(maxsize=CACHE_SIZE)
-def _load_mouse_data(project_name: str, mouse_name: str, modified: float) -> pd.DataFrame:
-    return load_project_trials(project_name, [mouse_name], root=get_data_path(), window=PERFORMANCE_WINDOW)
-
-
 def load_mouse_data(project_name: str, mouse_name: str) -> pd.DataFrame:
     """
     Trials of a subject, prepared for analysis (preprocessing.prepare, with
@@ -87,13 +89,12 @@ def load_mouse_data(project_name: str, mouse_name: str) -> pd.DataFrame:
     path = trials_file(project_name, mouse_name)
     if path is None:
         return pd.DataFrame()
-    return _load_mouse_data(project_name, mouse_name, _modified(path))
-
-
-@functools.lru_cache(maxsize=2)
-def _load_events(project_name: str, modified: Tuple[float, ...]) -> Optional[pd.DataFrame]:
-    events, _, _ = load_project_logs(project_name, root=get_data_path())
-    return events
+    root = get_data_path()
+    return MICE.get(
+        (project_name, mouse_name),
+        _modified(path),
+        lambda: load_project_trials(project_name, [mouse_name], root=root, window=PERFORMANCE_WINDOW),
+    )
 
 
 def load_events(project_name: str) -> Optional[pd.DataFrame]:
@@ -103,7 +104,18 @@ def load_events(project_name: str) -> Optional[pd.DataFrame]:
         return None
     folder = root / project_name
     files = sorted(folder.glob("*/events.csv")) + sorted(folder.glob("events.csv"))
-    return _load_events(project_name, tuple(_modified(f) for f in files))
+
+    def read() -> Optional[pd.DataFrame]:
+        events, _, _ = load_project_logs(project_name, root=root)
+        return events
+
+    return EVENTS.get(project_name, tuple(_modified(f) for f in files), read)
+
+
+def clear_cache() -> None:
+    """Forgets the data in memory (it is read again when needed)."""
+    MICE.clear()
+    EVENTS.clear()
 
 
 def day_trials(df: pd.DataFrame, day: str) -> pd.DataFrame:
