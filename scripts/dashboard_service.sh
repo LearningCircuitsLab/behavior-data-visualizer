@@ -8,7 +8,10 @@
 #   scripts/dashboard_service.sh ensure    start it if it is not running (for cron)
 #   scripts/dashboard_service.sh update    pull main of this repository and of
 #                                          lecilab-behavior-analysis, and restart
-#                                          if the code changed (for cron)
+#                                          if the code changed
+#   scripts/dashboard_service.sh nightly   pull main of both and restart, always
+#                                          (for cron, at night: it also frees the
+#                                          memory of the mice opened that day)
 #
 # It runs in the background (it keeps running after logging out), with the
 # code of this folder. Settings (environment variables):
@@ -78,13 +81,29 @@ start() {
         echo $! > "$PID_FILE"
     )
     versions > "$VERSIONS_FILE"
-    sleep 5
-    if pid="$(running_pid)"; then
-        echo "Running (process $pid): http://127.0.0.1:$PORT"
+    # loading the code takes a few seconds: wait until it answers (or stops)
+    for _ in $(seq 90); do
+        sleep 1
+        if ! pid="$(running_pid)"; then
+            log "It stopped right after starting: see the end of $LOG_FILE"
+            tail -n 5 "$LOG_FILE"
+            return 1
+        fi
+        if answers; then
+            echo "Running (process $pid): http://127.0.0.1:$PORT"
+            return 0
+        fi
+    done
+    log "Started (process $pid) but not answering yet on port $PORT: see $LOG_FILE"
+    return 1
+}
+
+answers() {
+    # whether the dashboard answers on its status page
+    if command -v curl >/dev/null; then
+        curl -s -o /dev/null --max-time 3 "http://127.0.0.1:$PORT/status"
     else
-        log "It stopped right after starting: see the end of $LOG_FILE"
-        tail -n 5 "$LOG_FILE"
-        return 1
+        "$PYTHON" -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:$PORT/status', timeout=3)" 2>/dev/null
     fi
 }
 
@@ -152,6 +171,17 @@ update() {
     fi
 }
 
+nightly() {
+    pull_main "$REPO"
+    local lecilab
+    if lecilab="$(lecilab_folder)"; then
+        pull_main "$lecilab"
+    fi
+    log "Nightly restart"
+    stop
+    start
+}
+
 case "${1:-}" in
     start) start ;;
     stop) stop ;;
@@ -159,8 +189,9 @@ case "${1:-}" in
     status) status ;;
     ensure) running_pid >/dev/null || { log "Not running: starting it"; start; } ;;
     update) update ;;
+    nightly) nightly ;;
     *)
-        sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '2,/^# It runs in the background/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
         exit 2
         ;;
 esac

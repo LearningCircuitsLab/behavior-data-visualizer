@@ -66,7 +66,33 @@ def test_ensure_starts_it_again_after_a_crash(service):
 
 def test_usage():
     result = subprocess.run(["bash", str(SCRIPT)], capture_output=True, text=True)
-    assert result.returncode == 2 and "start" in result.stdout and "update" in result.stdout
+    assert result.returncode == 2
+    for command in ("start", "stop", "restart", "status", "ensure", "update", "nightly"):
+        assert f"dashboard_service.sh {command}" in result.stdout
+    assert "It runs in the background" not in result.stdout
+
+
+def test_nightly_restarts_it(service):
+    """Every night: a new process (the memory of the mice opened that day is freed)."""
+    run, state = service
+    assert run("start").returncode == 0
+    before = (state / "dashboard.pid").read_text()
+    nightly = run("nightly")
+    assert "Nightly restart" in nightly.stdout and "Running (process" in nightly.stdout, nightly.stdout
+    assert (state / "dashboard.pid").read_text() != before
+
+
+def test_start_fails_when_the_port_is_in_use(service):
+    """It says so (instead of "Running") when the dashboard stops after loading."""
+    run, state = service
+    port = int(run("start").stdout.split("http://127.0.0.1:")[1].split()[0])
+    run("stop")
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", port))
+        listener.listen()
+        started = run("start")
+    assert started.returncode == 1 and "Running" not in started.stdout
+    assert "is in use" in started.stdout
 
 
 def test_restart_right_after_serving_pages(service):
