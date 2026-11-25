@@ -38,6 +38,28 @@ ssh -N explorer
 normal; leave it open, stop it with Ctrl+C) and open
 <http://localhost:8055>.
 
+### A shortcut: the `explorer` command
+
+Add this to the `~/.bashrc` of your computer (or `~/.zshrc` on a Mac), then
+open a new terminal:
+
+```bash
+# Behavior Explorer: opens the tunnel to the shared dashboard and prints its address
+explorer() {
+    local url="http://localhost:8055"
+    if (exec 3<>/dev/tcp/127.0.0.1/8055) 2>/dev/null; then
+        echo "The tunnel is already open: $url"
+        return 0
+    fi
+    echo "Behavior Explorer: $url   (status: $url/status)"
+    echo "Keep this terminal open; Ctrl+C closes the tunnel."
+    ssh -N explorer
+}
+```
+
+Then type `explorer`: it prints the address and opens the tunnel (or, if a
+tunnel is already open, only prints the address).
+
 Several people can use it at the same time: each browser has its own
 choices (project, mouse, day, zoom, video). The trials of a mouse are read
 once and shared, so a mouse someone opened before is fast for everyone.
@@ -107,14 +129,28 @@ BDV_PYTHON=/home/training_village/miniconda3/envs/report/bin/python
 # start it if it is not running (after a crash or a reboot)
 */5 * * * * /home/training_village/Github/behavior-data-visualizer/scripts/dashboard_service.sh ensure
 @reboot /home/training_village/Github/behavior-data-visualizer/scripts/dashboard_service.sh ensure
-# pull main of both repositories, and restart if the code changed
-30 7 * * * /home/training_village/Github/behavior-data-visualizer/scripts/dashboard_service.sh update
+# every night at 4: pull main of both repositories and restart (frees the memory)
+0 4 * * * /home/training_village/Github/behavior-data-visualizer/scripts/dashboard_service.sh nightly
 ```
 
-`update` pulls `main` of behavior-data-visualizer and of the clone of
+`nightly` pulls `main` of behavior-data-visualizer and of the clone of
 lecilab-behavior-analysis that the python uses (only if they are on `main`
-and have no changes) and restarts the dashboard if either changed. To update
-it right away, run `dashboard_service.sh update` by hand.
+and have no changes) and restarts the dashboard: it runs the latest code, and
+the memory taken by the mice opened during the day is freed (python does not
+always give memory back to the system while it runs). Anyone using it at 4 am
+loses the page for a few seconds (reload it).
+
+To update it right away, run `dashboard_service.sh update` by hand: it
+pulls and restarts only if the code changed.
+
+### What it costs
+
+Without anyone using it, the dashboard takes about 220 MB of memory and
+almost no processor (about 0.01 s of CPU per minute): it only waits for
+connections. When people open mice, their trials stay in memory (up to
+`BDV_CACHE_GB`, 4 GB by default, all users together) until the nightly
+restart. The cron job that checks it every 5 minutes takes a fraction of a
+second.
 
 ### Settings
 
