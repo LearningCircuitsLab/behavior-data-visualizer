@@ -9,7 +9,8 @@ with [lecilab-behavior-analysis](https://github.com/LearningCircuitsLab/lecilab-
 ## Running it
 
 On the cluster, one dashboard runs all the time for everyone: see
-[the shared dashboard](shared_dashboard.md) to use it.
+[use it from your computer](connect.md). How it runs there:
+[running the shared dashboard](shared_dashboard.md).
 
 To run one yourself:
 

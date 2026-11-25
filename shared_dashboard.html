@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The shared dashboard on the cluster &#8212; behavior-data-visualizer</title>
+    <title>Running the shared dashboard (cluster) &#8212; behavior-data-visualizer</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=a9c6e93f"></script>
+    <script src="_static/documentation_options.js?v=1dfd327d"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">behavior-data-visualizer v0.1.dev1+g92d0baa67</p>
+    <p class="title logo__title">behavior-data-visualizer v0.1.dev1+g8e448e8dd</p>
   
 </a></div>
     
@@ -135,6 +135,13 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="connect.html">
+    Use it from your computer
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="getting_started.html">
     Getting started
   </a>
@@ -143,7 +150,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#" aria-current="page">
-    The shared dashboard on the cluster
+    Running the shared dashboard (cluster)
   </a>
 </li>
 
@@ -250,6 +257,13 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="connect.html">
+    Use it from your computer
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="getting_started.html">
     Getting started
   </a>
@@ -258,7 +272,7 @@
 
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#" aria-current="page">
-    The shared dashboard on the cluster
+    Running the shared dashboard (cluster)
   </a>
 </li>
 
@@ -365,7 +379,7 @@
         <i class="fa-solid fa-house"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">The shared dashboard on the cluster</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Running the shared dashboard (cluster)</span></li>
   </ul>
 </nav>
 </div>
@@ -382,78 +396,12 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="the-shared-dashboard-on-the-cluster">
-<h1>The shared dashboard on the cluster<a class="headerlink" href="#the-shared-dashboard-on-the-cluster" title="Link to this heading">#</a></h1>
-<p>One Behavior Explorer runs all the time on minibaps2, for everyone. It is
-installed once, by the <code class="docutils literal notranslate"><span class="pre">training_village</span></code> user, and kept running and up to
-date by a script and two cron jobs. Nobody else needs to install or start
-anything.</p>
-<section id="using-it">
-<h2>Using it<a class="headerlink" href="#using-it" title="Link to this heading">#</a></h2>
-<p>The dashboard runs on minibaps2, on port <strong>8055</strong> (a port used only by it).
-You reach it through an SSH tunnel from your computer.</p>
-<section id="once-add-an-entry-to-your-ssh-configuration">
-<h3>Once: add an entry to your SSH configuration<a class="headerlink" href="#once-add-an-entry-to-your-ssh-configuration" title="Link to this heading">#</a></h3>
-<p>On your computer, add this to <code class="docutils literal notranslate"><span class="pre">~/.ssh/config</span></code>, with the same address, user
-and jump host that you use to log in to minibaps2 (look at your existing
-entry for it):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Host explorer
-    HostName &lt;address of minibaps2&gt;
-    User &lt;your user on the cluster&gt;
-    ProxyJump &lt;your entry for the cluster&gt;
-    LocalForward 8055 127.0.0.1:8055
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">LocalForward</span></code> connects port 8055 of your computer to port 8055 of
-minibaps2, where the dashboard is. Nothing else should use port 8055 on your
-computer (your other entries may forward 8050: that is fine).</p>
-</section>
-<section id="every-time">
-<h3>Every time<a class="headerlink" href="#every-time" title="Link to this heading">#</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-N<span class="w"> </span>explorer
-</pre></div>
-</div>
-<p>(<code class="docutils literal notranslate"><span class="pre">-N</span></code>: only the tunnel, no shell: the terminal seems to hang, which is
-normal; leave it open, stop it with Ctrl+C) and open
-<a class="reference external" href="http://localhost:8055">http://localhost:8055</a>.</p>
-</section>
-<section id="a-shortcut-the-explorer-command">
-<h3>A shortcut: the <code class="docutils literal notranslate"><span class="pre">explorer</span></code> command<a class="headerlink" href="#a-shortcut-the-explorer-command" title="Link to this heading">#</a></h3>
-<p>Add this to the <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code> of your computer (or <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code> on a Mac), then
-open a new terminal:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Behavior Explorer: opens the tunnel to the shared dashboard and prints its address</span>
-explorer<span class="o">()</span><span class="w"> </span><span class="o">{</span>
-<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">url</span><span class="o">=</span><span class="s2">"http://localhost:8055"</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">(</span><span class="nb">exec</span><span class="w"> </span><span class="m">3</span>&lt;&gt;/dev/tcp/127.0.0.1/8055<span class="o">)</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"The tunnel is already open: </span><span class="nv">$url</span><span class="s2">"</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="m">0</span>
-<span class="w">    </span><span class="k">fi</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Behavior Explorer: </span><span class="nv">$url</span><span class="s2">   (status: </span><span class="nv">$url</span><span class="s2">/status)"</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Keep this terminal open; Ctrl+C closes the tunnel."</span>
-<span class="w">    </span>ssh<span class="w"> </span>-N<span class="w"> </span>explorer
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>Then type <code class="docutils literal notranslate"><span class="pre">explorer</span></code>: it prints the address and opens the tunnel (or, if a
-tunnel is already open, only prints the address).</p>
-<p>Several people can use it at the same time: each browser has its own
-choices (project, mouse, day, zoom, video). The trials of a mouse are read
-once and shared, so a mouse someone opened before is fast for everyone.
-<a class="reference external" href="http://localhost:8055/status">http://localhost:8055/status</a> shows the code it runs (the commit), since
-when, and the mice in memory.</p>
-<p>If the page does not load:</p>
-<ul class="simple">
-<li><p>the tunnel must be open (<code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-N</span> <span class="pre">explorer</span></code>, in a terminal that stays
-open); if ssh says <code class="docutils literal notranslate"><span class="pre">bind:</span> <span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code>, something on your
-computer already uses port 8055 (often another <code class="docutils literal notranslate"><span class="pre">explorer</span></code> tunnel that is
-still open: close it),</p></li>
-<li><p>the dashboard may be restarting (after an update, for a few seconds), or
-stopped: the cron job starts it again within 5 minutes.</p></li>
-</ul>
-<p>It is only reachable from the cluster (it listens on localhost) and has no
-password: anyone who can log in to the cluster can use it.</p>
-</section>
-</section>
+  <section class="tex2jax_ignore mathjax_ignore" id="running-the-shared-dashboard-cluster">
+<h1>Running the shared dashboard (cluster)<a class="headerlink" href="#running-the-shared-dashboard-cluster" title="Link to this heading">#</a></h1>
+<p>One Behavior Explorer runs all the time on minibaps2, port 8055, for
+everyone. It is installed once, by the <code class="docutils literal notranslate"><span class="pre">training_village</span></code> user, and kept
+running and up to date by a script and cron jobs. This page is for whoever
+looks after it; to use it, see <a class="reference internal" href="connect.html"><span class="std std-doc">use it from your computer</span></a>.</p>
 <section id="looking-after-it-as-training-village">
 <span id="looking-after-it-as-training_village"></span><h2>Looking after it (as <code class="docutils literal notranslate"><span class="pre">training_village</span></code>)<a class="headerlink" href="#looking-after-it-as-training-village" title="Link to this heading">#</a></h2>
 <section id="install-it-once">
@@ -593,12 +541,6 @@ shared one: it uses port 8050 by default (<code class="docutils literal notransl
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-it">Using it</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#once-add-an-entry-to-your-ssh-configuration">Once: add an entry to your SSH configuration</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#every-time">Every time</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-shortcut-the-explorer-command">A shortcut: the <code class="docutils literal notranslate"><span class="pre">explorer</span></code> command</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#looking-after-it-as-training-village">Looking after it (as <code class="docutils literal notranslate"><span class="pre">training_village</span></code>)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-it-once">Install it once</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-stop-check">Start, stop, check</a></li>
