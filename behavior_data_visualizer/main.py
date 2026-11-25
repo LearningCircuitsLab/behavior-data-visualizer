@@ -52,6 +52,17 @@ REPORT_LOCK = threading.Lock()
 ROW = {"display": "flex", "flex-direction": "row", "gap": "8px", "align-items": "flex-start"}
 SMALL_TEXT = {"margin-top": "8px", "font-size": "11px", "color": "grey", "word-break": "break-all"}
 BUTTON = {"margin-right": "8px", "padding": "6px 12px", "cursor": "pointer"}
+SETTINGS_TEXT_ROW = {"display": "flex", "flex-wrap": "wrap", "gap": "16px", "align-items": "flex-start"}
+SETTINGS_TEXT = {"font-size": "11px", "margin": 0, "max-height": "420px", "overflow": "auto"}
+# settings shown above the matrix when a mouse is chosen (those it has)
+DEFAULT_SETTINGS = (
+    "current_training_stage",
+    "punishment",
+    "hard_trials_on",
+    "reward_amount_ul",
+    "reward_amount_ml",
+    "holding_response_time",
+)
 
 
 def app_builder():
@@ -178,8 +189,24 @@ def app_builder():
                                 [
                                     html.Button("Session report", id="session-report-button", style=BUTTON),
                                     html.Button("Training history", id="training-history-button", style=BUTTON),
+                                    html.Button("Settings history", id="settings-button", style=BUTTON),
                                 ],
                                 style={"margin": "8px 0"},
+                            ),
+                            html.Div(
+                                [
+                                    dcc.Dropdown(
+                                        id="settings-dropdown",
+                                        options=[],
+                                        value=[],
+                                        multi=True,
+                                        placeholder="Settings to show above the matrix",
+                                    ),
+                                    dcc.Loading(dcc.Graph(id="settings-matrix", figure=figures.empty_figure())),
+                                    html.Div(id="session-settings", style=SETTINGS_TEXT_ROW),
+                                ],
+                                id="settings-section",
+                                style={"display": "none"},
                             ),
                             dcc.Loading(html.Div(id="session-report")),
                             dcc.Loading(html.Div(id="training-history")),
@@ -269,17 +296,58 @@ def app_builder():
         dash.Output("selected-day", "data"),
         dash.Input("mouse-data-loaded", "data"),
         dash.Input("reactive-calendar", "clickData"),
+        dash.Input("settings-matrix", "clickData"),
     )
-    def update_selected_day(loaded, click_data):
+    def update_selected_day(loaded, click_data, matrix_click=None):
         if not loaded:
             return None
         df = data.load_mouse_data(loaded["project"], loaded["mouse"])
-        if dash.ctx.triggered_id == "reactive-calendar" and click_data:
-            day = click_data["points"][0].get("customdata")
+        source = triggered_id()
+        if source in ("reactive-calendar", "settings-matrix"):
+            clicked = click_data if source == "reactive-calendar" else matrix_click
+            day = str((clicked or {"points": [{}]})["points"][0].get("customdata") or "")[:10]
             if day in data.trials_per_day(df).index:
                 return day
             raise PreventUpdate  # a day without trials
         return data.last_day(df)
+
+    # the settings history: shown with its button
+    @app.callback(
+        dash.Output("settings-section", "style"),
+        dash.Input("settings-button", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def toggle_settings(n_clicks):
+        return {"display": "block"} if n_clicks and n_clicks % 2 == 1 else {"display": "none"}
+
+    # the settings of the mouse (those that change first) and the ones shown by default
+    @app.callback(
+        dash.Output("settings-dropdown", "options"),
+        dash.Output("settings-dropdown", "value"),
+        dash.Input("mouse-data-loaded", "data"),
+    )
+    def update_settings_options(loaded):
+        if not loaded:
+            return [], []
+        return settings_options(data.load_session_settings(loaded["project"], loaded["mouse"]))
+
+    @app.callback(
+        dash.Output("settings-matrix", "figure"),
+        dash.Output("session-settings", "children"),
+        dash.Input("selected-day", "data"),
+        dash.Input("settings-dropdown", "value"),
+        dash.Input("settings-section", "style"),
+        dash.State("mouse-data-loaded", "data"),
+    )
+    def update_settings_history(day, names, section_style, loaded):
+        if not section_style or section_style.get("display") == "none":
+            raise PreventUpdate  # hidden: nothing to draw
+        if not loaded:
+            return figures.empty_figure("Choose a project and a mouse"), None
+        df = data.load_mouse_data(loaded["project"], loaded["mouse"])
+        table = data.load_session_settings(loaded["project"], loaded["mouse"])
+        figure = figures.training_matrix_figure(df, table, list(names or []), day)
+        return figure, day_settings_text(table, loaded["mouse"], day)
 
     @app.callback(
         dash.Output("reactive-calendar", "figure"),
@@ -483,6 +551,40 @@ def zoom_outputs(source, zoom, day_df):
         )
     psychometric = figures.psychometric_figure(in_view, title=title)
     return patches["single-mouse-performance"], patches["trial-by-trial"], psychometric
+
+
+def settings_options(table) -> tuple:
+    """Options of the settings dropdown (those that change first, marked) and the ones shown by default."""
+    from lecilab_behavior_analysis.io.settings import SESSION_COLUMNS, changing_settings
+
+    if table.empty:
+        return [], []
+    changing = changing_settings(table)
+    others = sorted(c for c in table.columns if c not in SESSION_COLUMNS and c not in changing)
+    options = [{"label": f"{name} (changes)", "value": name} for name in changing] + [
+        {"label": name, "value": name} for name in others
+    ]
+    default = [name for name in DEFAULT_SETTINGS if name in table.columns]
+    return options, default
+
+
+def day_settings_text(table, mouse: str, day):
+    """The settings of each session of a day, the changes since the previous session first."""
+    from lecilab_behavior_analysis.io.settings import format_session_settings, row_settings
+
+    if table.empty or not day:
+        return html.Div("No settings saved for this mouse (sessions_summary.csv).", style=SMALL_TEXT)
+    rows = table.reset_index(drop=True)
+    on_day = rows[rows["date"].dt.strftime("%Y-%m-%d") == day]
+    if on_day.empty:
+        return html.Div(f"No settings saved for the sessions of {day}.", style=SMALL_TEXT)
+    blocks = []
+    for index, row in on_day.iterrows():
+        settings = row_settings(row)
+        previous = row_settings(rows.loc[index - 1]) if index > 0 else None
+        title = f"{mouse}, session of {row['date']:%Y-%m-%d %H:%M} ({row.get('task', '')})"
+        blocks.append(html.Pre(format_session_settings(settings, previous, title=title), style=SETTINGS_TEXT))
+    return blocks
 
 
 def triggered_id():

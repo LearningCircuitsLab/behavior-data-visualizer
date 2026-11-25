@@ -454,6 +454,191 @@ def psychometric_figure(day_df: pd.DataFrame, title: Optional[str] = None) -> go
 
 
 # ---------------------------------------------------------------------------
+# Settings and choices through training (training matrix)
+# ---------------------------------------------------------------------------
+# P(left choice): red = left, blue = right (as the matrix of the reports)
+MATRIX_COLORSCALE = "RdBu_r"
+HIGHLIGHT_COLOR = "black"
+
+
+def _settings_panel_traces(values: pd.DataFrame, x: np.ndarray, dates: List[str]) -> list:
+    """
+    The settings panel: one row per setting (values: one row per setting, one
+    column per session), each cell coloured by its value, and the value
+    written where it changes. All rows are one heatmap (plotly needs one
+    heatmap per axis with categories): each cell points to its colour in a
+    palette with the colours of every row.
+    """
+    from lecilab_behavior_analysis.plots.training import (
+        setting_change_labels,
+        setting_colors,
+        setting_values_to_colors,
+    )
+
+    names = list(values.index)
+    rows_colors, rows_labels, texts = [], [], []
+    for name in names:
+        codes, labels, kind = setting_values_to_colors(values.loc[name])
+        rows_colors.append(setting_colors(codes, kind))
+        rows_labels.append(labels)
+        # labels closer than ~1/40 of the sessions would overlap
+        changes = setting_change_labels(labels, kind, min_gap=max(1, len(x) // 40))
+        texts.append(
+            go.Scatter(
+                x=[x[i] - 0.4 for i in changes],
+                y=[name] * len(changes),
+                mode="text",
+                text=[labels[i] for i in changes],
+                textposition="middle right",
+                textfont={"size": 10, "color": "#222"},
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
+    palette = list(dict.fromkeys(color for row in rows_colors for color in row))
+    n = len(palette)
+    colorscale = []
+    for i, color in enumerate(palette):  # a step per colour: no colour is interpolated
+        colorscale += [[i / n, color], [(i + 1) / n, color]]
+    # the middle of the step of each colour
+    z = [[palette.index(color) + 0.5 for color in row] for row in rows_colors]
+    hover = [
+        [f"{name}: {label or '(not saved)'}<br>session {date}" for label, date in zip(labels, dates)]
+        for name, labels in zip(names, rows_labels)
+    ]
+    heat = go.Heatmap(
+        z=z,
+        x=x,
+        y=names,
+        zmin=0,
+        zmax=n,
+        colorscale=colorscale,
+        showscale=False,
+        ygap=2,
+        customdata=[dates] * len(names),
+        text=hover,
+        hovertemplate="%{text}<extra></extra>",
+    )
+    return [heat] + texts
+
+
+def training_matrix_figure(
+    trials: pd.DataFrame,
+    settings_table: Optional[pd.DataFrame] = None,
+    setting_names: Optional[List[str]] = None,
+    selected_day: Optional[str] = None,
+) -> go.Figure:
+    """
+    How the choices and the settings changed through training, session by
+    session: the proportion of left choices by correct side and difficulty
+    (lecilab_behavior_analysis.metrics.choices.get_choices_by_difficulty_matrix)
+    and, above it, a row per setting in setting_names (from settings_table,
+    lecilab_behavior_analysis.io.settings), coloured by its value. The
+    sessions of selected_day (YYYY-MM-DD) are framed. Clicking a cell gives
+    the date of its session in its customdata.
+    """
+    from lecilab_behavior_analysis.io.settings import settings_for_sessions
+    from lecilab_behavior_analysis.metrics.choices import get_choices_by_difficulty_matrix
+
+    if trials.empty:
+        return empty_figure("No trials")
+    p_left, n_trials, sessions = get_choices_by_difficulty_matrix(trials)
+    x = np.arange(len(sessions))
+    dates = [d.strftime("%Y-%m-%d %H:%M") for d in pd.to_datetime(sessions["date"])]
+    names = [n for n in (setting_names or [])]
+    n_rows = len(names)
+    rows = 2 if n_rows else 1
+    heights = [n_rows / (n_rows + 6), 6 / (n_rows + 6)] if n_rows else [1]
+    fig = make_subplots(rows=rows, cols=1, shared_xaxes=True, row_heights=heights, vertical_spacing=0.02)
+
+    if n_rows:
+        values = settings_for_sessions(settings_table, sessions["date"], names)
+        for trace in _settings_panel_traces(values, x, dates):
+            fig.add_trace(trace, row=1, col=1)
+        fig.update_yaxes(autorange="reversed", fixedrange=True, row=1, col=1)
+
+    hover = [
+        [
+            f"{row}<br>P(left) {p:.2f} ({n} trials)<br>session {date}<br>{stage}"
+            if not np.isnan(p)
+            else f"{row}<br>no trials<br>session {date}<br>{stage}"
+            for p, n, date, stage in zip(
+                p_left.loc[row].to_numpy(dtype=float),
+                n_trials.loc[row].to_numpy(),
+                dates,
+                sessions["current_training_stage"].fillna(""),
+            )
+        ]
+        for row in p_left.index
+    ]
+    fig.add_trace(
+        go.Heatmap(
+            # as lists (empty cells: None): a 2D numpy array is sent in a binary
+            # format that this version of plotly.js does not draw
+            z=[[None if np.isnan(v) else float(v) for v in row] for row in p_left.to_numpy(dtype=float)],
+            x=x,
+            y=list(p_left.index),
+            zmin=0,
+            zmax=1,
+            colorscale=MATRIX_COLORSCALE,
+            colorbar={"title": "P(left)", "thickness": 10, "len": 0.6, "y": 0.3 if n_rows else 0.5},
+            customdata=[dates] * len(p_left.index),
+            text=hover,
+            hovertemplate="%{text}<extra></extra>",
+            hoverongaps=False,
+        ),
+        row=rows,
+        col=1,
+    )
+    fig.update_yaxes(autorange="reversed", fixedrange=True, row=rows, col=1)
+
+    # a date at the first session of each day (at most ~15)
+    days = sessions["day"].tolist()
+    firsts = [i for i, day in enumerate(days) if i == 0 or day != days[i - 1]]
+    step = max(1, len(firsts) // 15)
+    fig.update_xaxes(
+        tickvals=[firsts[i] for i in range(0, len(firsts), step)],
+        ticktext=[days[firsts[i]] for i in range(0, len(firsts), step)],
+        row=rows,
+        col=1,
+    )
+    fig.update_xaxes(title_text="session (first session of each day)", row=rows, col=1)
+
+    if selected_day in days:
+        columns = [i for i, day in enumerate(days) if day == selected_day]
+        fig.add_shape(
+            type="rect",
+            xref="x",
+            yref="paper",
+            x0=columns[0] - 0.5,
+            x1=columns[-1] + 0.5,
+            y0=0,
+            y1=1.04,
+            line={"color": HIGHLIGHT_COLOR, "width": 2},
+        )
+        fig.add_annotation(
+            x=(columns[0] + columns[-1]) / 2,
+            y=1.04,
+            xref="x",
+            yref="paper",
+            text=selected_day,
+            showarrow=False,
+            yanchor="bottom",
+            font={"size": 11},
+        )
+    fig.update_layout(
+        plot_bgcolor="white",
+        margin={"l": 170, "r": 10, "t": 40, "b": 60},
+        height=320 + 28 * n_rows,
+        title={
+            "text": "Settings and choices, session by session (click a session to see that day)",
+            "font": {"size": 13},
+        },
+    )
+    return fig
+
+
+# ---------------------------------------------------------------------------
 # Figures of the daily report, as images
 # ---------------------------------------------------------------------------
 def matplotlib_to_uri(fig) -> str:

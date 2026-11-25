@@ -23,6 +23,11 @@ with [lecilab-behavior-analysis](https://github.com/LearningCircuitsLab/lecilab-
   zooms the other one, and the psychometric curves use only those trials.
 - Buttons to draw the figures of the daily report: the session report of the
   day and the training history up to it.
+- Settings history: the settings of each session (training stage,
+  punishment, difficulties, reward...) as coloured rows above a matrix of the
+  choices by side and difficulty, session by session; choose the settings
+  to show, see the full settings of the day's sessions (what changed first),
+  and click a session to go to its day.
 
 ## Running the shared dashboard (cluster)
 

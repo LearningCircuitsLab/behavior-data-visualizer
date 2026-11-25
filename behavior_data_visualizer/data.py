@@ -33,6 +33,7 @@ CACHE_GB = float(os.environ.get("BDV_CACHE_GB", 4))
 
 MICE = SharedCache(int(CACHE_GB * 1e9), name="trials")
 EVENTS = SharedCache(int(1e9), name="events")  # the events of a project or two
+SETTINGS = SharedCache(int(5e8), name="settings")  # the settings of the sessions of a few projects
 
 PERFORMANCE_WINDOW = 50
 
@@ -112,10 +113,48 @@ def load_events(project_name: str) -> Optional[pd.DataFrame]:
     return EVENTS.get(project_name, tuple(_modified(f) for f in files), read)
 
 
+def summary_files(project_name: str) -> List[Path]:
+    """The sessions_summary.csv of every setup of a project (lecilab_behavior_analysis.io.loading.find_setups)."""
+    from lecilab_behavior_analysis.io.loading import find_setups
+
+    root = get_data_path()
+    if root is None:
+        return []
+    return [root / project_name / setup / "sessions_summary.csv" for setup in find_setups(project_name, root)]
+
+
+def load_session_settings(project_name: str, mouse_name: str) -> pd.DataFrame:
+    """
+    The settings of every session of a mouse: one row per session (date,
+    subject, task and one column per setting), read from the sessions
+    summaries of the project (lecilab_behavior_analysis.io.settings). Empty
+    if there are none. Do not modify it.
+    """
+    from lecilab_behavior_analysis.io.settings import session_settings_table
+
+    files = [f for f in summary_files(project_name) if f.exists()]
+
+    def read() -> pd.DataFrame:
+        frames = []
+        for path in files:
+            try:
+                frames.append(pd.read_csv(path, sep=";"))
+            except Exception:  # a summary that cannot be read: the others are still used
+                continue
+        summary = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+        return session_settings_table(summary)
+
+    table = SETTINGS.get(project_name, tuple((str(f), _modified(f)) for f in files), read)
+    if table.empty:
+        return table
+    return table[table["subject"] == mouse_name].reset_index(drop=True)
+
+
 def clear_cache() -> None:
     """Forgets the data in memory (it is read again when needed)."""
     MICE.clear()
     EVENTS.clear()
+    SETTINGS.clear()
 
 
 def day_trials(df: pd.DataFrame, day: str) -> pd.DataFrame:

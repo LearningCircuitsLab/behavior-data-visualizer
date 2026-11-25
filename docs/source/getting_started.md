@@ -73,3 +73,17 @@ LECILAB_DATA_PATH=tests/data/sample_data python behavior_data_visualizer/main.py
    shown above them). Double click to see the whole day again.
 4. The buttons draw the figures of the daily report: the session report of
    the day and the training history up to the day.
+5. **Settings history** (button): how the training went, session by session.
+   - Below, the proportion of left choices for each correct side and
+     difficulty (left easy at the top, right easy at the bottom; red: left,
+     blue: right): a psychometric curve per session, as colours.
+   - Above, a row per setting chosen in the list (the settings that changed
+     at some point come first; by default the training stage, punishment,
+     hard trials, reward and holding time), coloured by its value, with the
+     value written where it changes.
+   - The selected day is framed. Click a session to go to its day.
+   - Below the figure, all the settings of each session of the day, the ones
+     that changed since the previous session first (marked with `*`).
+
+   The settings come from the `settings` column of the `sessions_summary.csv`
+   of each setup of the project (saved by the village).
