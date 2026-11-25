@@ -16,7 +16,9 @@
 # It runs in the background (it keeps running after logging out), with the
 # code of this folder. Settings (environment variables):
 #
-#   BDV_PYTHON     python with the dependencies installed (default: python)
+#   BDV_PYTHON     python with the dependencies installed. It is remembered:
+#                  without it, the python of the last start is used (or
+#                  "python" the first time)
 #   BDV_PORT       port (default: 8055; 8050 is left for personal dashboards)
 #   BDV_STATE_DIR  where the log and the process id are kept
 #                  (default: ~/.local/state/behavior-explorer)
@@ -25,14 +27,24 @@
 set -u
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PYTHON="${BDV_PYTHON:-python}"
 PORT="${BDV_PORT:-8055}"
 STATE_DIR="${BDV_STATE_DIR:-$HOME/.local/state/behavior-explorer}"
 PID_FILE="$STATE_DIR/dashboard.pid"
 LOG_FILE="$STATE_DIR/dashboard.log"
 VERSIONS_FILE="$STATE_DIR/versions"
+PYTHON_FILE="$STATE_DIR/python"
 
 mkdir -p "$STATE_DIR"
+
+# the python: BDV_PYTHON, or the one of the last start (so that running the
+# script from another environment, e.g. conda's base, does not change it)
+if [ -n "${BDV_PYTHON:-}" ]; then
+    PYTHON="$BDV_PYTHON"
+elif [ -s "$PYTHON_FILE" ]; then
+    PYTHON="$(cat "$PYTHON_FILE")"
+else
+    PYTHON="python"
+fi
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$LOG_FILE"; }
 
@@ -72,6 +84,14 @@ start() {
         log "Cannot start: $PYTHON does not have the dependencies (dash, waitress, lecilab_behavior_analysis)."
         return 1
     fi
+    # the version of lecilab_behavior_analysis this code needs (its session settings)
+    # (from the folder the dashboard runs in: a clone in the current folder would hide the installed copy)
+    if ! (cd "$REPO" && "$PYTHON" -c 'import lecilab_behavior_analysis.io.settings') 2>/dev/null; then
+        log "Cannot start: the lecilab_behavior_analysis of $PYTHON is too old (pull its main and install it" \
+            "with this python), or this is not the right python (set BDV_PYTHON)."
+        return 1
+    fi
+    echo "$PYTHON" > "$PYTHON_FILE"
     log "Starting on port $PORT with $PYTHON"
     # -m from this folder: the code of this folder, whatever copy is installed
     # (nohup: it keeps running after logging out)
@@ -131,6 +151,7 @@ status() {
     local pid
     if pid="$(running_pid)"; then
         echo "Running (process $pid): http://127.0.0.1:$PORT"
+        echo "python of the next start: $PYTHON"
         if command -v curl >/dev/null; then
             curl -s --max-time 5 "http://127.0.0.1:$PORT/status" || echo "(no answer from /status)"
         fi

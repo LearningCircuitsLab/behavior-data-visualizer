@@ -106,3 +106,34 @@ def test_restart_right_after_serving_pages(service):
             assert page.read().startswith(b"Behavior Explorer")
     restarted = run("restart")
     assert "Running (process" in restarted.stdout, restarted.stdout + (state / "dashboard.log").read_text()
+
+
+def test_python_is_remembered(service, tmp_path):
+    """Restarting without BDV_PYTHON (e.g. from conda's base) keeps the python of the last start."""
+    run, state = service
+    assert run("start").returncode == 0
+    assert (state / "python").read_text().strip() == sys.executable
+    env_without_python = {k: v for k, v in os.environ.items() if k != "BDV_PYTHON"}
+    env_without_python.update(BDV_STATE_DIR=str(state), LECILAB_DATA_PATH=str(SAMPLE_DATA))
+    port = run("status").stdout.split("http://127.0.0.1:")[1].split()[0]
+    env_without_python["BDV_PORT"] = port
+    status = subprocess.run(
+        ["bash", str(SCRIPT), "status"], env=env_without_python, capture_output=True, text=True, timeout=60
+    )
+    assert f"python of the next start: {sys.executable}" in status.stdout
+    restarted = subprocess.run(
+        ["bash", str(SCRIPT), "restart"], env=env_without_python, capture_output=True, text=True, timeout=120
+    )
+    assert "Running (process" in restarted.stdout
+    assert f"with {sys.executable}" in (state / "dashboard.log").read_text().splitlines()[-2]
+
+
+def test_a_python_without_the_settings_of_lecilab_is_refused(service, tmp_path):
+    """e.g. the python of conda's base with an old lecilab_behavior_analysis."""
+    run, state = service
+    fake = tmp_path / "old_python"
+    fake.write_text(f'#!/bin/bash\ncase "$*" in *io.settings*) exit 1;; esac\nexec {sys.executable} "$@"\n')
+    fake.chmod(0o755)
+    env = {**os.environ, "BDV_PYTHON": str(fake), "BDV_STATE_DIR": str(state), "LECILAB_DATA_PATH": str(SAMPLE_DATA)}
+    result = subprocess.run(["bash", str(SCRIPT), "start"], env=env, capture_output=True, text=True, timeout=60)
+    assert result.returncode == 1 and "too old" in result.stdout

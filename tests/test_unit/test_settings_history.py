@@ -133,3 +133,18 @@ def test_clicking_the_matrix_selects_the_day(app, monkeypatch):
     assert select(loaded, None, {"points": [{"customdata": "2025-06-02 10:00"}]}) == "2025-06-02"
     with pytest.raises(PreventUpdate):  # a day without trials
         select(loaded, None, {"points": [{"customdata": "1999-01-01 10:00"}]})
+
+
+def test_settings_that_cannot_be_read(app, monkeypatch):
+    """e.g. lecilab updated after the dashboard started: the matrix without settings, and why."""
+
+    def missing(project, mouse):
+        raise ModuleNotFoundError("No module named 'lecilab_behavior_analysis.io.settings'")
+
+    monkeypatch.setattr(data, "load_session_settings", missing)
+    loaded = {"project": VISUAL_COT[0], "mouse": VISUAL_COT[1]}
+    assert callback(app, "settings-dropdown.options")(loaded) == ([], [])
+    figure, message = callback(app, "settings-matrix.figure")("2025-06-02", [], SHOWN, loaded)
+    assert [t.type for t in figure.data] == ["heatmap"]  # the matrix is still drawn
+    assert "Could not read the settings: ModuleNotFoundError" in message.children
+    assert "restart" in message.children

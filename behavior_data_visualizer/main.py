@@ -34,6 +34,7 @@ if __name__ == "__main__" and not __package__:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import dash  # noqa: E402
+import pandas as pd  # noqa: E402
 from dash import dcc, html  # noqa: E402
 from dash.exceptions import PreventUpdate  # noqa: E402
 from flask import Response, abort, send_from_directory  # noqa: E402
@@ -329,7 +330,8 @@ def app_builder():
     def update_settings_options(loaded):
         if not loaded:
             return [], []
-        return settings_options(data.load_session_settings(loaded["project"], loaded["mouse"]))
+        table, _ = read_session_settings(loaded)
+        return settings_options(table)
 
     @app.callback(
         dash.Output("settings-matrix", "figure"),
@@ -345,8 +347,10 @@ def app_builder():
         if not loaded:
             return figures.empty_figure("Choose a project and a mouse"), None
         df = data.load_mouse_data(loaded["project"], loaded["mouse"])
-        table = data.load_session_settings(loaded["project"], loaded["mouse"])
+        table, problem = read_session_settings(loaded)
         figure = figures.training_matrix_figure(df, table, list(names or []), day)
+        if problem:  # the matrix without settings, and why
+            return figure, html.Div(problem, style={**SMALL_TEXT, "color": "#c0392b"})
         return figure, day_settings_text(table, loaded["mouse"], day)
 
     @app.callback(
@@ -551,6 +555,24 @@ def zoom_outputs(source, zoom, day_df):
         )
     psychometric = figures.psychometric_figure(in_view, title=title)
     return patches["single-mouse-performance"], patches["trial-by-trial"], psychometric
+
+
+def read_session_settings(loaded: dict) -> tuple:
+    """
+    The settings of the sessions of the mouse (data.load_session_settings)
+    and, if they could not be read, why (otherwise None). The rest of the
+    dashboard keeps working without them.
+    """
+    try:
+        return data.load_session_settings(loaded["project"], loaded["mouse"]), None
+    except Exception as error:
+        hint = ""
+        if isinstance(error, ImportError):
+            hint = (
+                " lecilab-behavior-analysis may have been updated after the dashboard started:"
+                " restart it (scripts/dashboard_service.sh restart)."
+            )
+        return pd.DataFrame(), f"Could not read the settings: {type(error).__name__}: {error}.{hint}"
 
 
 def settings_options(table) -> tuple:
