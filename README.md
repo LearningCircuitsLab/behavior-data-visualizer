@@ -1,5 +1,9 @@
 # behavior-data-visualizer
 
+> **To use the Behavior Explorer from your computer, follow
+> [Use it from your computer](https://learningcircuitslab.github.io/behavior-data-visualizer/connect.html)**
+> (set up once, then type `explorer` and open <http://localhost:8055>).
+
 Documentation: <https://learningcircuitslab.github.io/behavior-data-visualizer/>
 
 The Training Village Behavior Explorer: a web dashboard to look at the
@@ -19,18 +23,10 @@ with [lecilab-behavior-analysis](https://github.com/LearningCircuitsLab/lecilab-
 - Buttons to draw the figures of the daily report: the session report of the
   day and the training history up to it.
 
-## Using it on the cluster
+## Running the shared dashboard (cluster)
 
-One dashboard runs all the time on minibaps2, on port 8055, for everyone.
-Add an `explorer` entry to your `~/.ssh/config` (see the guide below), then:
-
-```bash
-ssh -N explorer
-```
-
-and open <http://localhost:8055>. Several people can use it at once. How it is
-installed and kept running:
-[the shared dashboard](https://learningcircuitslab.github.io/behavior-data-visualizer/shared_dashboard.html).
+Installed once by `training_village` and kept running by cron:
+[running the shared dashboard](https://learningcircuitslab.github.io/behavior-data-visualizer/shared_dashboard.html).
 
 ## Running it yourself
 

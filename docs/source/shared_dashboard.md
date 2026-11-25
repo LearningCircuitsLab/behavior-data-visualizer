@@ -1,82 +1,9 @@
-# The shared dashboard on the cluster
+# Running the shared dashboard (cluster)
 
-One Behavior Explorer runs all the time on minibaps2, for everyone. It is
-installed once, by the `training_village` user, and kept running and up to
-date by a script and two cron jobs. Nobody else needs to install or start
-anything.
-
-## Using it
-
-The dashboard runs on minibaps2, on port **8055** (a port used only by it).
-You reach it through an SSH tunnel from your computer.
-
-### Once: add an entry to your SSH configuration
-
-On your computer, add this to `~/.ssh/config`, with the same address, user
-and jump host that you use to log in to minibaps2 (look at your existing
-entry for it):
-
-```text
-Host explorer
-    HostName <address of minibaps2>
-    User <your user on the cluster>
-    ProxyJump <your entry for the cluster>
-    LocalForward 8055 127.0.0.1:8055
-```
-
-`LocalForward` connects port 8055 of your computer to port 8055 of
-minibaps2, where the dashboard is. Nothing else should use port 8055 on your
-computer (your other entries may forward 8050: that is fine).
-
-### Every time
-
-```bash
-ssh -N explorer
-```
-
-(`-N`: only the tunnel, no shell: the terminal seems to hang, which is
-normal; leave it open, stop it with Ctrl+C) and open
-<http://localhost:8055>.
-
-### A shortcut: the `explorer` command
-
-Add this to the `~/.bashrc` of your computer (or `~/.zshrc` on a Mac), then
-open a new terminal:
-
-```bash
-# Behavior Explorer: opens the tunnel to the shared dashboard and prints its address
-explorer() {
-    local url="http://localhost:8055"
-    if (exec 3<>/dev/tcp/127.0.0.1/8055) 2>/dev/null; then
-        echo "The tunnel is already open: $url"
-        return 0
-    fi
-    echo "Behavior Explorer: $url   (status: $url/status)"
-    echo "Keep this terminal open; Ctrl+C closes the tunnel."
-    ssh -N explorer
-}
-```
-
-Then type `explorer`: it prints the address and opens the tunnel (or, if a
-tunnel is already open, only prints the address).
-
-Several people can use it at the same time: each browser has its own
-choices (project, mouse, day, zoom, video). The trials of a mouse are read
-once and shared, so a mouse someone opened before is fast for everyone.
-<http://localhost:8055/status> shows the code it runs (the commit), since
-when, and the mice in memory.
-
-If the page does not load:
-
-- the tunnel must be open (`ssh -N explorer`, in a terminal that stays
-  open); if ssh says `bind: Address already in use`, something on your
-  computer already uses port 8055 (often another `explorer` tunnel that is
-  still open: close it),
-- the dashboard may be restarting (after an update, for a few seconds), or
-  stopped: the cron job starts it again within 5 minutes.
-
-It is only reachable from the cluster (it listens on localhost) and has no
-password: anyone who can log in to the cluster can use it.
+One Behavior Explorer runs all the time on minibaps2, port 8055, for
+everyone. It is installed once, by the `training_village` user, and kept
+running and up to date by a script and cron jobs. This page is for whoever
+looks after it; to use it, see [use it from your computer](connect.md).
 
 ## Looking after it (as `training_village`)
 
