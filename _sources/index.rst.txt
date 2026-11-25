@@ -11,8 +11,8 @@ It runs all the time on the cluster, for everyone.
 
 .. important::
 
-   **To use it from your computer:** :doc:`connect` (two steps, done once:
-   an SSH entry and an ``explorer`` command; then type ``explorer`` and open
+   **To use it from your computer:** :doc:`connect` (add an ``explorer`` entry
+   to your SSH configuration once; then run ``ssh -N explorer`` and open
    http://localhost:8055).
 
 .. toctree::

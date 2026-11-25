@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=1dfd327d"></script>
+    <script src="_static/documentation_options.js?v=efff2967"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">behavior-data-visualizer v0.1.dev1+g8e448e8dd</p>
+    <p class="title logo__title">behavior-data-visualizer</p>
   
 </a></div>
     
@@ -400,10 +400,9 @@
 <h1>Use it from your computer<a class="headerlink" href="#use-it-from-your-computer" title="Link to this heading">#</a></h1>
 <p>The Behavior Explorer runs all the time on the cluster (minibaps2, port
 <strong>8055</strong>), for everyone. You do not install anything: you open an SSH tunnel
-from your computer and use it in your browser. Setting up a computer takes
-two steps, done once.</p>
-<section id="add-an-explorer-entry-to-your-ssh-configuration">
-<span id="1-add-an-explorer-entry-to-your-ssh-configuration"></span><h2>1. Add an <code class="docutils literal notranslate"><span class="pre">explorer</span></code> entry to your SSH configuration<a class="headerlink" href="#add-an-explorer-entry-to-your-ssh-configuration" title="Link to this heading">#</a></h2>
+from your computer and use it in your browser.</p>
+<section id="once-add-an-explorer-entry-to-your-ssh-configuration">
+<h2>Once: add an <code class="docutils literal notranslate"><span class="pre">explorer</span></code> entry to your SSH configuration<a class="headerlink" href="#once-add-an-explorer-entry-to-your-ssh-configuration" title="Link to this heading">#</a></h2>
 <p>On your computer, add this to <code class="docutils literal notranslate"><span class="pre">~/.ssh/config</span></code>. Fill in the same address, user
 and jump host that you use to log in to minibaps2 (copy them from your
 existing entry for it):</p>
@@ -418,10 +417,21 @@ existing entry for it):</p>
 where the dashboard is. Your other entries may forward other ports (e.g.
 8050): that is fine, as long as nothing else uses 8055.</p>
 </section>
-<section id="add-the-explorer-command-to-your-terminal">
-<span id="2-add-the-explorer-command-to-your-terminal"></span><h2>2. Add the <code class="docutils literal notranslate"><span class="pre">explorer</span></code> command to your terminal<a class="headerlink" href="#add-the-explorer-command-to-your-terminal" title="Link to this heading">#</a></h2>
-<p>Add this to <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code> (Linux, WSL) or <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code> (Mac), then open a new
-terminal:</p>
+<section id="every-time">
+<h2>Every time<a class="headerlink" href="#every-time" title="Link to this heading">#</a></h2>
+<p>Open the tunnel:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>-N<span class="w"> </span>explorer
+</pre></div>
+</div>
+<p>and open <a class="reference external" href="http://localhost:8055">http://localhost:8055</a> in your browser.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-N</span></code> opens only the tunnel (no shell), so the terminal seems to hang: that is
+normal. Keep it open while you use the dashboard; Ctrl+C closes the tunnel.
+It may ask for your password.</p>
+</section>
+<section id="optional-an-explorer-command-to-save-time">
+<h2>Optional: an <code class="docutils literal notranslate"><span class="pre">explorer</span></code> command, to save time<a class="headerlink" href="#optional-an-explorer-command-to-save-time" title="Link to this heading">#</a></h2>
+<p>To open the tunnel and get the address with one word, add this to
+<code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code> (Linux, WSL) or <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code> (Mac), then open a new terminal:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Behavior Explorer: opens the tunnel to the shared dashboard and prints its address</span>
 explorer<span class="o">()</span><span class="w"> </span><span class="o">{</span>
 <span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">url</span><span class="o">=</span><span class="s2">"http://localhost:8055"</span>
@@ -435,17 +445,8 @@ explorer<span class="o">()</span><span class="w"> </span><span class="o">{</span
 <span class="o">}</span>
 </pre></div>
 </div>
-</section>
-<section id="every-time">
-<h2>Every time<a class="headerlink" href="#every-time" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>explorer
-</pre></div>
-</div>
-<p>It prints the address and opens the tunnel (it may ask for your password).
-Open <a class="reference external" href="http://localhost:8055">http://localhost:8055</a> in your browser, and keep the terminal open
-while you use it: it seems to hang, which is normal. Ctrl+C closes the
-tunnel. If a tunnel is already open, <code class="docutils literal notranslate"><span class="pre">explorer</span></code> only prints the address.</p>
-<p>Without the shortcut, <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-N</span> <span class="pre">explorer</span></code> does the same.</p>
+<p>From then on, type <code class="docutils literal notranslate"><span class="pre">explorer</span></code>: it prints the address and opens the tunnel
+(or, if a tunnel is already open, only prints the address).</p>
 </section>
 <section id="good-to-know">
 <h2>Good to know<a class="headerlink" href="#good-to-know" title="Link to this heading">#</a></h2>
@@ -464,15 +465,14 @@ can log in to the cluster can use it.</p></li>
 <section id="if-the-page-does-not-load">
 <h2>If the page does not load<a class="headerlink" href="#if-the-page-does-not-load" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><strong>Is the tunnel open?</strong> <code class="docutils literal notranslate"><span class="pre">explorer</span></code> (or <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-N</span> <span class="pre">explorer</span></code>) must be running
-in a terminal.</p></li>
+<li><p><strong>Is the tunnel open?</strong> <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">-N</span> <span class="pre">explorer</span></code> must be running in a terminal.</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">bind:</span> <span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code></strong> when opening the tunnel: something on
 your computer already uses port 8055, usually another <code class="docutils literal notranslate"><span class="pre">explorer</span></code> tunnel
 that is still open. Close it, or just use that one.</p></li>
 <li><p><strong>The tunnel opens but the page does not load:</strong> the dashboard may be
 restarting (a few seconds after an update) or stopped; it is started again
 within 5 minutes. If it does not come back, tell whoever looks after it
-(see <a class="reference internal" href="shared_dashboard.html"><span class="std std-doc">the shared dashboard</span></a>).</p></li>
+(see <a class="reference internal" href="shared_dashboard.html"><span class="std std-doc">running the shared dashboard</span></a>).</p></li>
 </ul>
 </section>
 </section>
@@ -524,9 +524,9 @@ within 5 minutes. If it does not come back, tell whoever looks after it
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-an-explorer-entry-to-your-ssh-configuration">1. Add an <code class="docutils literal notranslate"><span class="pre">explorer</span></code> entry to your SSH configuration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-the-explorer-command-to-your-terminal">2. Add the <code class="docutils literal notranslate"><span class="pre">explorer</span></code> command to your terminal</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#once-add-an-explorer-entry-to-your-ssh-configuration">Once: add an <code class="docutils literal notranslate"><span class="pre">explorer</span></code> entry to your SSH configuration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#every-time">Every time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-an-explorer-command-to-save-time">Optional: an <code class="docutils literal notranslate"><span class="pre">explorer</span></code> command, to save time</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#good-to-know">Good to know</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if-the-page-does-not-load">If the page does not load</a></li>
 </ul>
