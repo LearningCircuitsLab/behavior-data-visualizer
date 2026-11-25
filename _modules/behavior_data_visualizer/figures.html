@@ -37,7 +37,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=efff2967"></script>
+    <script src="../../_static/documentation_options.js?v=d2b7bb38"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -849,6 +849,194 @@
         <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span>
         <span class="n">margin</span><span class="o">=</span><span class="p">{</span><span class="s2">"l"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"t"</span><span class="p">:</span> <span class="mi">70</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="mi">40</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
         <span class="n">title</span><span class="o">=</span><span class="p">{</span><span class="s2">"text"</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">"font"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"size"</span><span class="p">:</span> <span class="mi">13</span><span class="p">}}</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Settings and choices through training (training matrix)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># P(left choice): red = left, blue = right (as the matrix of the reports)</span>
+<span class="n">MATRIX_COLORSCALE</span> <span class="o">=</span> <span class="s2">"RdBu_r"</span>
+<span class="n">HIGHLIGHT_COLOR</span> <span class="o">=</span> <span class="s2">"black"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_settings_panel_traces</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The settings panel: one row per setting (values: one row per setting, one</span>
+<span class="sd">    column per session), each cell coloured by its value, and the value</span>
+<span class="sd">    written where it changes. All rows are one heatmap (plotly needs one</span>
+<span class="sd">    heatmap per axis with categories): each cell points to its colour in a</span>
+<span class="sd">    palette with the colours of every row.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.plots.training</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">setting_change_labels</span><span class="p">,</span>
+        <span class="n">setting_colors</span><span class="p">,</span>
+        <span class="n">setting_values_to_colors</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">rows_colors</span><span class="p">,</span> <span class="n">rows_labels</span><span class="p">,</span> <span class="n">texts</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">codes</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">kind</span> <span class="o">=</span> <span class="n">setting_values_to_colors</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">rows_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">setting_colors</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="n">kind</span><span class="p">))</span>
+        <span class="n">rows_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="c1"># labels closer than ~1/40 of the sessions would overlap</span>
+        <span class="n">changes</span> <span class="o">=</span> <span class="n">setting_change_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">min_gap</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">//</span> <span class="mi">40</span><span class="p">))</span>
+        <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">],</span>
+                <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes</span><span class="p">),</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">"text"</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">],</span>
+                <span class="n">textposition</span><span class="o">=</span><span class="s2">"middle right"</span><span class="p">,</span>
+                <span class="n">textfont</span><span class="o">=</span><span class="p">{</span><span class="s2">"size"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">:</span> <span class="s2">"#222"</span><span class="p">},</span>
+                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">"skip"</span><span class="p">,</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">palette</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">color</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows_colors</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">row</span><span class="p">))</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span>
+    <span class="n">colorscale</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>  <span class="c1"># a step per colour: no colour is interpolated</span>
+        <span class="n">colorscale</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">i</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="n">color</span><span class="p">],</span> <span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="n">color</span><span class="p">]]</span>
+    <span class="c1"># the middle of the step of each colour</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">[[</span><span class="n">palette</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows_colors</span><span class="p">]</span>
+    <span class="n">hover</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">label</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'(not saved)'</span><span class="si">}</span><span class="s2">&lt;br&gt;session </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">date</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">dates</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rows_labels</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">heat</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Heatmap</span><span class="p">(</span>
+        <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
+        <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">zmax</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+        <span class="n">colorscale</span><span class="o">=</span><span class="n">colorscale</span><span class="p">,</span>
+        <span class="n">showscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">ygap</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">customdata</span><span class="o">=</span><span class="p">[</span><span class="n">dates</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span>
+        <span class="n">text</span><span class="o">=</span><span class="n">hover</span><span class="p">,</span>
+        <span class="n">hovertemplate</span><span class="o">=</span><span class="s2">"%</span><span class="si">{text}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">heat</span><span class="p">]</span> <span class="o">+</span> <span class="n">texts</span>
+
+
+<div class="viewcode-block" id="training_matrix_figure">
+<a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.figures.training_matrix_figure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">training_matrix_figure</span><span class="p">(</span>
+    <span class="n">trials</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">settings_table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">setting_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">selected_day</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    How the choices and the settings changed through training, session by</span>
+<span class="sd">    session: the proportion of left choices by correct side and difficulty</span>
+<span class="sd">    (lecilab_behavior_analysis.metrics.choices.get_choices_by_difficulty_matrix)</span>
+<span class="sd">    and, above it, a row per setting in setting_names (from settings_table,</span>
+<span class="sd">    lecilab_behavior_analysis.io.settings), coloured by its value. The</span>
+<span class="sd">    sessions of selected_day (YYYY-MM-DD) are framed. Clicking a cell gives</span>
+<span class="sd">    the date of its session in its customdata.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.io.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings_for_sessions</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.metrics.choices</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_choices_by_difficulty_matrix</span>
+
+    <span class="k">if</span> <span class="n">trials</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">empty_figure</span><span class="p">(</span><span class="s2">"No trials"</span><span class="p">)</span>
+    <span class="n">p_left</span><span class="p">,</span> <span class="n">n_trials</span><span class="p">,</span> <span class="n">sessions</span> <span class="o">=</span> <span class="n">get_choices_by_difficulty_matrix</span><span class="p">(</span><span class="n">trials</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sessions</span><span class="p">))</span>
+    <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M"</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">sessions</span><span class="p">[</span><span class="s2">"date"</span><span class="p">])]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="n">setting_names</span> <span class="ow">or</span> <span class="p">[])]</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">n_rows</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">heights</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_rows</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_rows</span> <span class="o">+</span> <span class="mi">6</span><span class="p">),</span> <span class="mi">6</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_rows</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)]</span> <span class="k">if</span> <span class="n">n_rows</span> <span class="k">else</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shared_xaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">row_heights</span><span class="o">=</span><span class="n">heights</span><span class="p">,</span> <span class="n">vertical_spacing</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_rows</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">settings_for_sessions</span><span class="p">(</span><span class="n">settings_table</span><span class="p">,</span> <span class="n">sessions</span><span class="p">[</span><span class="s2">"date"</span><span class="p">],</span> <span class="n">names</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">trace</span> <span class="ow">in</span> <span class="n">_settings_panel_traces</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dates</span><span class="p">):</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">autorange</span><span class="o">=</span><span class="s2">"reversed"</span><span class="p">,</span> <span class="n">fixedrange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">hover</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">&lt;br&gt;P(left) </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> trials)&lt;br&gt;session </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">&lt;br&gt;</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">&lt;br&gt;no trials&lt;br&gt;session </span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s2">&lt;br&gt;</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">p_left</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="n">n_trials</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                <span class="n">dates</span><span class="p">,</span>
+                <span class="n">sessions</span><span class="p">[</span><span class="s2">"current_training_stage"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">p_left</span><span class="o">.</span><span class="n">index</span>
+    <span class="p">]</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+        <span class="n">go</span><span class="o">.</span><span class="n">Heatmap</span><span class="p">(</span>
+            <span class="c1"># as lists (empty cells: None): a 2D numpy array is sent in a binary</span>
+            <span class="c1"># format that this version of plotly.js does not draw</span>
+            <span class="n">z</span><span class="o">=</span><span class="p">[[</span><span class="kc">None</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">p_left</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)],</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">p_left</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+            <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">zmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">colorscale</span><span class="o">=</span><span class="n">MATRIX_COLORSCALE</span><span class="p">,</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="p">{</span><span class="s2">"title"</span><span class="p">:</span> <span class="s2">"P(left)"</span><span class="p">,</span> <span class="s2">"thickness"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"len"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mf">0.3</span> <span class="k">if</span> <span class="n">n_rows</span> <span class="k">else</span> <span class="mf">0.5</span><span class="p">},</span>
+            <span class="n">customdata</span><span class="o">=</span><span class="p">[</span><span class="n">dates</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_left</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">hover</span><span class="p">,</span>
+            <span class="n">hovertemplate</span><span class="o">=</span><span class="s2">"%</span><span class="si">{text}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;"</span><span class="p">,</span>
+            <span class="n">hoverongaps</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">row</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">autorange</span><span class="o">=</span><span class="s2">"reversed"</span><span class="p">,</span> <span class="n">fixedrange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># a date at the first session of each day (at most ~15)</span>
+    <span class="n">days</span> <span class="o">=</span> <span class="n">sessions</span><span class="p">[</span><span class="s2">"day"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">firsts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">day</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">days</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">day</span> <span class="o">!=</span> <span class="n">days</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">firsts</span><span class="p">)</span> <span class="o">//</span> <span class="mi">15</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span>
+        <span class="n">tickvals</span><span class="o">=</span><span class="p">[</span><span class="n">firsts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">firsts</span><span class="p">),</span> <span class="n">step</span><span class="p">)],</span>
+        <span class="n">ticktext</span><span class="o">=</span><span class="p">[</span><span class="n">days</span><span class="p">[</span><span class="n">firsts</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">firsts</span><span class="p">),</span> <span class="n">step</span><span class="p">)],</span>
+        <span class="n">row</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span>
+        <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">"session (first session of each day)"</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">rows</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">selected_day</span> <span class="ow">in</span> <span class="n">days</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">day</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">days</span><span class="p">)</span> <span class="k">if</span> <span class="n">day</span> <span class="o">==</span> <span class="n">selected_day</span><span class="p">]</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_shape</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">"rect"</span><span class="p">,</span>
+            <span class="n">xref</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span>
+            <span class="n">yref</span><span class="o">=</span><span class="s2">"paper"</span><span class="p">,</span>
+            <span class="n">x0</span><span class="o">=</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">x1</span><span class="o">=</span><span class="n">columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">y0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">y1</span><span class="o">=</span><span class="mf">1.04</span><span class="p">,</span>
+            <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="n">HIGHLIGHT_COLOR</span><span class="p">,</span> <span class="s2">"width"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_annotation</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="mf">1.04</span><span class="p">,</span>
+            <span class="n">xref</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span>
+            <span class="n">yref</span><span class="o">=</span><span class="s2">"paper"</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">selected_day</span><span class="p">,</span>
+            <span class="n">showarrow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">yanchor</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
+            <span class="n">font</span><span class="o">=</span><span class="p">{</span><span class="s2">"size"</span><span class="p">:</span> <span class="mi">11</span><span class="p">},</span>
+        <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+        <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span>
+        <span class="n">margin</span><span class="o">=</span><span class="p">{</span><span class="s2">"l"</span><span class="p">:</span> <span class="mi">170</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">"t"</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="mi">60</span><span class="p">},</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">320</span> <span class="o">+</span> <span class="mi">28</span> <span class="o">*</span> <span class="n">n_rows</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"text"</span><span class="p">:</span> <span class="s2">"Settings and choices, session by session (click a session to see that day)"</span><span class="p">,</span>
+            <span class="s2">"font"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"size"</span><span class="p">:</span> <span class="mi">13</span><span class="p">},</span>
+        <span class="p">},</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 

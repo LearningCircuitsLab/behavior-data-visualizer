@@ -37,7 +37,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=efff2967"></script>
+    <script src="../../_static/documentation_options.js?v=d2b7bb38"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -432,6 +432,17 @@
 <span class="n">ROW</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"display"</span><span class="p">:</span> <span class="s2">"flex"</span><span class="p">,</span> <span class="s2">"flex-direction"</span><span class="p">:</span> <span class="s2">"row"</span><span class="p">,</span> <span class="s2">"gap"</span><span class="p">:</span> <span class="s2">"8px"</span><span class="p">,</span> <span class="s2">"align-items"</span><span class="p">:</span> <span class="s2">"flex-start"</span><span class="p">}</span>
 <span class="n">SMALL_TEXT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"margin-top"</span><span class="p">:</span> <span class="s2">"8px"</span><span class="p">,</span> <span class="s2">"font-size"</span><span class="p">:</span> <span class="s2">"11px"</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">:</span> <span class="s2">"grey"</span><span class="p">,</span> <span class="s2">"word-break"</span><span class="p">:</span> <span class="s2">"break-all"</span><span class="p">}</span>
 <span class="n">BUTTON</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"margin-right"</span><span class="p">:</span> <span class="s2">"8px"</span><span class="p">,</span> <span class="s2">"padding"</span><span class="p">:</span> <span class="s2">"6px 12px"</span><span class="p">,</span> <span class="s2">"cursor"</span><span class="p">:</span> <span class="s2">"pointer"</span><span class="p">}</span>
+<span class="n">SETTINGS_TEXT_ROW</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"display"</span><span class="p">:</span> <span class="s2">"flex"</span><span class="p">,</span> <span class="s2">"flex-wrap"</span><span class="p">:</span> <span class="s2">"wrap"</span><span class="p">,</span> <span class="s2">"gap"</span><span class="p">:</span> <span class="s2">"16px"</span><span class="p">,</span> <span class="s2">"align-items"</span><span class="p">:</span> <span class="s2">"flex-start"</span><span class="p">}</span>
+<span class="n">SETTINGS_TEXT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"font-size"</span><span class="p">:</span> <span class="s2">"11px"</span><span class="p">,</span> <span class="s2">"margin"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"max-height"</span><span class="p">:</span> <span class="s2">"420px"</span><span class="p">,</span> <span class="s2">"overflow"</span><span class="p">:</span> <span class="s2">"auto"</span><span class="p">}</span>
+<span class="c1"># settings shown above the matrix when a mouse is chosen (those it has)</span>
+<span class="n">DEFAULT_SETTINGS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"current_training_stage"</span><span class="p">,</span>
+    <span class="s2">"punishment"</span><span class="p">,</span>
+    <span class="s2">"hard_trials_on"</span><span class="p">,</span>
+    <span class="s2">"reward_amount_ul"</span><span class="p">,</span>
+    <span class="s2">"reward_amount_ml"</span><span class="p">,</span>
+    <span class="s2">"holding_response_time"</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">app_builder</span><span class="p">():</span>
@@ -558,8 +569,24 @@
                                 <span class="p">[</span>
                                     <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">"Session report"</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"session-report-button"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">BUTTON</span><span class="p">),</span>
                                     <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">"Training history"</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"training-history-button"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">BUTTON</span><span class="p">),</span>
+                                    <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">"Settings history"</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"settings-button"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">BUTTON</span><span class="p">),</span>
                                 <span class="p">],</span>
                                 <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">"margin"</span><span class="p">:</span> <span class="s2">"8px 0"</span><span class="p">},</span>
+                            <span class="p">),</span>
+                            <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                                <span class="p">[</span>
+                                    <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+                                        <span class="nb">id</span><span class="o">=</span><span class="s2">"settings-dropdown"</span><span class="p">,</span>
+                                        <span class="n">options</span><span class="o">=</span><span class="p">[],</span>
+                                        <span class="n">value</span><span class="o">=</span><span class="p">[],</span>
+                                        <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                        <span class="n">placeholder</span><span class="o">=</span><span class="s2">"Settings to show above the matrix"</span><span class="p">,</span>
+                                    <span class="p">),</span>
+                                    <span class="n">dcc</span><span class="o">.</span><span class="n">Loading</span><span class="p">(</span><span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"settings-matrix"</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">figures</span><span class="o">.</span><span class="n">empty_figure</span><span class="p">())),</span>
+                                    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"session-settings"</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SETTINGS_TEXT_ROW</span><span class="p">),</span>
+                                <span class="p">],</span>
+                                <span class="nb">id</span><span class="o">=</span><span class="s2">"settings-section"</span><span class="p">,</span>
+                                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">"display"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">},</span>
                             <span class="p">),</span>
                             <span class="n">dcc</span><span class="o">.</span><span class="n">Loading</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"session-report"</span><span class="p">)),</span>
                             <span class="n">dcc</span><span class="o">.</span><span class="n">Loading</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"training-history"</span><span class="p">)),</span>
@@ -649,17 +676,58 @@
         <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"selected-day"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">),</span>
         <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"mouse-data-loaded"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">),</span>
         <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"reactive-calendar"</span><span class="p">,</span> <span class="s2">"clickData"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"settings-matrix"</span><span class="p">,</span> <span class="s2">"clickData"</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_selected_day</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">click_data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_selected_day</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">click_data</span><span class="p">,</span> <span class="n">matrix_click</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">load_mouse_data</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">dash</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggered_id</span> <span class="o">==</span> <span class="s2">"reactive-calendar"</span> <span class="ow">and</span> <span class="n">click_data</span><span class="p">:</span>
-            <span class="n">day</span> <span class="o">=</span> <span class="n">click_data</span><span class="p">[</span><span class="s2">"points"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"customdata"</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">triggered_id</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"reactive-calendar"</span><span class="p">,</span> <span class="s2">"settings-matrix"</span><span class="p">):</span>
+            <span class="n">clicked</span> <span class="o">=</span> <span class="n">click_data</span> <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">"reactive-calendar"</span> <span class="k">else</span> <span class="n">matrix_click</span>
+            <span class="n">day</span> <span class="o">=</span> <span class="nb">str</span><span class="p">((</span><span class="n">clicked</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">"points"</span><span class="p">:</span> <span class="p">[{}]})[</span><span class="s2">"points"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"customdata"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">trials_per_day</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">day</span>
             <span class="k">raise</span> <span class="n">PreventUpdate</span>  <span class="c1"># a day without trials</span>
         <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">last_day</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="c1"># the settings history: shown with its button</span>
+    <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"settings-section"</span><span class="p">,</span> <span class="s2">"style"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"settings-button"</span><span class="p">,</span> <span class="s2">"n_clicks"</span><span class="p">),</span>
+        <span class="n">prevent_initial_call</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toggle_settings</span><span class="p">(</span><span class="n">n_clicks</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"display"</span><span class="p">:</span> <span class="s2">"block"</span><span class="p">}</span> <span class="k">if</span> <span class="n">n_clicks</span> <span class="ow">and</span> <span class="n">n_clicks</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">{</span><span class="s2">"display"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">}</span>
+
+    <span class="c1"># the settings of the mouse (those that change first) and the ones shown by default</span>
+    <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"settings-dropdown"</span><span class="p">,</span> <span class="s2">"options"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"settings-dropdown"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"mouse-data-loaded"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_settings_options</span><span class="p">(</span><span class="n">loaded</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">settings_options</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">load_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">]))</span>
+
+    <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"settings-matrix"</span><span class="p">,</span> <span class="s2">"figure"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"session-settings"</span><span class="p">,</span> <span class="s2">"children"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"selected-day"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"settings-dropdown"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="s2">"settings-section"</span><span class="p">,</span> <span class="s2">"style"</span><span class="p">),</span>
+        <span class="n">dash</span><span class="o">.</span><span class="n">State</span><span class="p">(</span><span class="s2">"mouse-data-loaded"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_settings_history</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">section_style</span><span class="p">,</span> <span class="n">loaded</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_style</span> <span class="ow">or</span> <span class="n">section_style</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"none"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PreventUpdate</span>  <span class="c1"># hidden: nothing to draw</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">figures</span><span class="o">.</span><span class="n">empty_figure</span><span class="p">(</span><span class="s2">"Choose a project and a mouse"</span><span class="p">),</span> <span class="kc">None</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">load_mouse_data</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">])</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">load_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">])</span>
+        <span class="n">figure</span> <span class="o">=</span> <span class="n">figures</span><span class="o">.</span><span class="n">training_matrix_figure</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">names</span> <span class="ow">or</span> <span class="p">[]),</span> <span class="n">day</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">figure</span><span class="p">,</span> <span class="n">day_settings_text</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">],</span> <span class="n">day</span><span class="p">)</span>
 
     <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
         <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"reactive-calendar"</span><span class="p">,</span> <span class="s2">"figure"</span><span class="p">),</span>
@@ -865,6 +933,46 @@
         <span class="p">)</span>
     <span class="n">psychometric</span> <span class="o">=</span> <span class="n">figures</span><span class="o">.</span><span class="n">psychometric_figure</span><span class="p">(</span><span class="n">in_view</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">patches</span><span class="p">[</span><span class="s2">"single-mouse-performance"</span><span class="p">],</span> <span class="n">patches</span><span class="p">[</span><span class="s2">"trial-by-trial"</span><span class="p">],</span> <span class="n">psychometric</span></div>
+
+
+
+<div class="viewcode-block" id="settings_options">
+<a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.main.settings_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">settings_options</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Options of the settings dropdown (those that change first, marked) and the ones shown by default."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.io.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">SESSION_COLUMNS</span><span class="p">,</span> <span class="n">changing_settings</span>
+
+    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">changing</span> <span class="o">=</span> <span class="n">changing_settings</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+    <span class="n">others</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SESSION_COLUMNS</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">changing</span><span class="p">)</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"label"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (changes)"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">changing</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">"label"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">others</span>
+    <span class="p">]</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">DEFAULT_SETTINGS</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">options</span><span class="p">,</span> <span class="n">default</span></div>
+
+
+
+<div class="viewcode-block" id="day_settings_text">
+<a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.main.day_settings_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">day_settings_text</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">mouse</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The settings of each session of a day, the changes since the previous session first."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.io.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_session_settings</span><span class="p">,</span> <span class="n">row_settings</span>
+
+    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">day</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="s2">"No settings saved for this mouse (sessions_summary.csv)."</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SMALL_TEXT</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">on_day</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="n">rows</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span> <span class="o">==</span> <span class="n">day</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">on_day</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No settings saved for the sessions of </span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SMALL_TEXT</span><span class="p">)</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">on_day</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">row_settings</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="n">row_settings</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mouse</span><span class="si">}</span><span class="s2">, session of </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'date'</span><span class="p">]</span><span class="si">:</span><span class="s2">%Y-%m-%d %H:%M</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'task'</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+        <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Pre</span><span class="p">(</span><span class="n">format_session_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">previous</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">),</span> <span class="n">style</span><span class="o">=</span><span class="n">SETTINGS_TEXT</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">blocks</span></div>
 
 
 

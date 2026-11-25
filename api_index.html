@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=efff2967"></script>
+    <script src="_static/documentation_options.js?v=d2b7bb38"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -478,12 +478,37 @@ by every callback (copy it first).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="behavior_data_visualizer.data.load_session_settings">
+<span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.data.</span></span><span class="sig-name descname"><span class="pre">load_session_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mouse_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/data.html#load_session_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.data.load_session_settings" title="Link to this definition">#</a></dt>
+<dd><p>The settings of every session of a mouse: one row per session (date,
+subject, task and one column per setting), read from the sessions
+summaries of the project (lecilab_behavior_analysis.io.settings). Empty
+if there are none. Do not modify it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="behavior_data_visualizer.data.seconds_of_trial">
 <span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.data.</span></span><span class="sig-name descname"><span class="pre">seconds_of_trial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/data.html#seconds_of_trial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.data.seconds_of_trial" title="Link to this definition">#</a></dt>
 <dd><p>Seconds from the start of the first trial of a session to the start of one of its trials.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> | <span class="highlight sphinx_autodoc_typehints-value"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></span></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="behavior_data_visualizer.data.summary_files">
+<span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.data.</span></span><span class="sig-name descname"><span class="pre">summary_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/data.html#summary_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.data.summary_files" title="Link to this definition">#</a></dt>
+<dd><p>The sessions_summary.csv of every setup of a project (lecilab_behavior_analysis.io.loading.find_setups).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,6 +682,23 @@ and have a first choice.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="behavior_data_visualizer.figures.training_matrix_figure">
+<span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.figures.</span></span><span class="sig-name descname"><span class="pre">training_matrix_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trials</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setting_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/figures.html#training_matrix_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.figures.training_matrix_figure" title="Link to this definition">#</a></dt>
+<dd><p>How the choices and the settings changed through training, session by
+session: the proportion of left choices by correct side and difficulty
+(lecilab_behavior_analysis.metrics.choices.get_choices_by_difficulty_matrix)
+and, above it, a row per setting in setting_names (from settings_table,
+lecilab_behavior_analysis.io.settings), coloured by its value. The
+sessions of selected_day (YYYY-MM-DD) are framed. Clicking a cell gives
+the date of its session in its customdata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="behavior_data_visualizer.figures.trial_by_trial_figure">
 <span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.figures.</span></span><span class="sig-name descname"><span class="pre">trial_by_trial_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/figures.html#trial_by_trial_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.figures.trial_by_trial_figure" title="Link to this definition">#</a></dt>
 <dd><p>What happened on each trial of a day, as a barcode (one tick per trial):</p>
@@ -727,6 +769,12 @@ LECILAB_DATA_PATH environment variable, or the folder of this computer).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="behavior_data_visualizer.main.day_settings_text">
+<span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.main.</span></span><span class="sig-name descname"><span class="pre">day_settings_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mouse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/main.html#day_settings_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.main.day_settings_text" title="Link to this definition">#</a></dt>
+<dd><p>The settings of each session of a day, the changes since the previous session first.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="behavior_data_visualizer.main.day_text">
 <span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.main.</span></span><span class="sig-name descname"><span class="pre">day_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mouse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/main.html#day_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.main.day_text" title="Link to this definition">#</a></dt>
 <dd><p>Summary of the trials of a day (as in the daily report).</p>
@@ -763,6 +811,17 @@ LECILAB_DATA_PATH environment variable, or the folder of this computer).</p>
 <dt class="sig sig-object py" id="behavior_data_visualizer.main.report_image">
 <span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.main.</span></span><span class="sig-name descname"><span class="pre">report_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/main.html#report_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.main.report_image" title="Link to this definition">#</a></dt>
 <dd><p>A figure of the daily report (lecilab_behavior_analysis.figure_maker) as an image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="behavior_data_visualizer.main.settings_options">
+<span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.main.</span></span><span class="sig-name descname"><span class="pre">settings_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/main.html#settings_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.main.settings_options" title="Link to this definition">#</a></dt>
+<dd><p>Options of the settings dropdown (those that change first, marked) and the ones shown by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -838,7 +897,9 @@ psychometric figure of the trials in view.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.get_list_of_projects"><code class="docutils literal notranslate"><span class="pre">get_list_of_projects()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.load_events"><code class="docutils literal notranslate"><span class="pre">load_events()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.load_mouse_data"><code class="docutils literal notranslate"><span class="pre">load_mouse_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.load_session_settings"><code class="docutils literal notranslate"><span class="pre">load_session_settings()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.seconds_of_trial"><code class="docutils literal notranslate"><span class="pre">seconds_of_trial()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.summary_files"><code class="docutils literal notranslate"><span class="pre">summary_files()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.trials_file"><code class="docutils literal notranslate"><span class="pre">trials_file()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.trials_per_day"><code class="docutils literal notranslate"><span class="pre">trials_per_day()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.data.trials_up_to"><code class="docutils literal notranslate"><span class="pre">trials_up_to()</span></code></a></li>
@@ -855,6 +916,7 @@ psychometric figure of the trials in view.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.psychometric_points"><code class="docutils literal notranslate"><span class="pre">psychometric_points()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.psychometric_trials"><code class="docutils literal notranslate"><span class="pre">psychometric_trials()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.report_problems"><code class="docutils literal notranslate"><span class="pre">report_problems()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.training_matrix_figure"><code class="docutils literal notranslate"><span class="pre">training_matrix_figure()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.trial_by_trial_figure"><code class="docutils literal notranslate"><span class="pre">trial_by_trial_figure()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.trials_in_view"><code class="docutils literal notranslate"><span class="pre">trials_in_view()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.figures.zoom_range"><code class="docutils literal notranslate"><span class="pre">zoom_range()</span></code></a></li>
@@ -862,10 +924,12 @@ psychometric figure of the trials in view.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-behavior_data_visualizer.main">main</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.code_version"><code class="docutils literal notranslate"><span class="pre">code_version()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.day_settings_text"><code class="docutils literal notranslate"><span class="pre">day_settings_text()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.day_text"><code class="docutils literal notranslate"><span class="pre">day_text()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.port_is_free"><code class="docutils literal notranslate"><span class="pre">port_is_free()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.report_image"><code class="docutils literal notranslate"><span class="pre">report_image()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.settings_options"><code class="docutils literal notranslate"><span class="pre">settings_options()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.status_text"><code class="docutils literal notranslate"><span class="pre">status_text()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.triggered_id"><code class="docutils literal notranslate"><span class="pre">triggered_id()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.zoom_outputs"><code class="docutils literal notranslate"><span class="pre">zoom_outputs()</span></code></a></li>

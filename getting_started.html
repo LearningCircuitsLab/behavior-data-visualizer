@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=efff2967"></script>
+    <script src="_static/documentation_options.js?v=d2b7bb38"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -440,7 +440,7 @@ is shown under the dropdowns. For example, to look at a sample dataset:</p>
 </section>
 <section id="what-it-shows">
 <h2>What it shows<a class="headerlink" href="#what-it-shows" title="Link to this heading">#</a></h2>
-<ol class="arabic simple">
+<ol class="arabic">
 <li><p>Choose a project and a mouse. Its trials are read (a few seconds for a
 long history; the last mice opened are kept in memory and read again
 when their file changes).</p></li>
@@ -469,6 +469,22 @@ shown above them). Double click to see the whole day again.</p></li>
 </li>
 <li><p>The buttons draw the figures of the daily report: the session report of
 the day and the training history up to the day.</p></li>
+<li><p><strong>Settings history</strong> (button): how the training went, session by session.</p>
+<ul class="simple">
+<li><p>Below, the proportion of left choices for each correct side and
+difficulty (left easy at the top, right easy at the bottom; red: left,
+blue: right): a psychometric curve per session, as colours.</p></li>
+<li><p>Above, a row per setting chosen in the list (the settings that changed
+at some point come first; by default the training stage, punishment,
+hard trials, reward and holding time), coloured by its value, with the
+value written where it changes.</p></li>
+<li><p>The selected day is framed. Click a session to go to its day.</p></li>
+<li><p>Below the figure, all the settings of each session of the day, the ones
+that changed since the previous session first (marked with <code class="docutils literal notranslate"><span class="pre">*</span></code>).</p></li>
+</ul>
+<p>The settings come from the <code class="docutils literal notranslate"><span class="pre">settings</span></code> column of the <code class="docutils literal notranslate"><span class="pre">sessions_summary.csv</span></code>
+of each setup of the project (saved by the village).</p>
+</li>
 </ol>
 </section>
 </section>

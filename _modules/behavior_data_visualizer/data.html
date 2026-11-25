@@ -37,7 +37,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=efff2967"></script>
+    <script src="../../_static/documentation_options.js?v=d2b7bb38"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -413,6 +413,7 @@
 
 <span class="n">MICE</span> <span class="o">=</span> <span class="n">SharedCache</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">CACHE_GB</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"trials"</span><span class="p">)</span>
 <span class="n">EVENTS</span> <span class="o">=</span> <span class="n">SharedCache</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mf">1e9</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"events"</span><span class="p">)</span>  <span class="c1"># the events of a project or two</span>
+<span class="n">SETTINGS</span> <span class="o">=</span> <span class="n">SharedCache</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mf">5e8</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settings"</span><span class="p">)</span>  <span class="c1"># the settings of the sessions of a few projects</span>
 
 <span class="n">PERFORMANCE_WINDOW</span> <span class="o">=</span> <span class="mi">50</span>
 
@@ -507,12 +508,56 @@
 
 
 
+<div class="viewcode-block" id="summary_files">
+<a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.data.summary_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">summary_files</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The sessions_summary.csv of every setup of a project (lecilab_behavior_analysis.io.loading.find_setups)."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.io.loading</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_setups</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">root</span> <span class="o">/</span> <span class="n">project_name</span> <span class="o">/</span> <span class="n">setup</span> <span class="o">/</span> <span class="s2">"sessions_summary.csv"</span> <span class="k">for</span> <span class="n">setup</span> <span class="ow">in</span> <span class="n">find_setups</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="n">root</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="load_session_settings">
+<a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.data.load_session_settings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_session_settings</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mouse_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The settings of every session of a mouse: one row per session (date,</span>
+<span class="sd">    subject, task and one column per setting), read from the sessions</span>
+<span class="sd">    summaries of the project (lecilab_behavior_analysis.io.settings). Empty</span>
+<span class="sd">    if there are none. Do not modify it.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lecilab_behavior_analysis.io.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">session_settings_table</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">summary_files</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">()]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># a summary that cannot be read: the others are still used</span>
+                <span class="k">continue</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">frames</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">session_settings_table</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+
+    <span class="n">table</span> <span class="o">=</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="n">_modified</span><span class="p">(</span><span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">),</span> <span class="n">read</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">table</span>
+    <span class="k">return</span> <span class="n">table</span><span class="p">[</span><span class="n">table</span><span class="p">[</span><span class="s2">"subject"</span><span class="p">]</span> <span class="o">==</span> <span class="n">mouse_name</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="clear_cache">
 <a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.data.clear_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Forgets the data in memory (it is read again when needed)."""</span>
     <span class="n">MICE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-    <span class="n">EVENTS</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+    <span class="n">EVENTS</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">SETTINGS</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
 
