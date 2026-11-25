@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=d2b7bb38"></script>
+    <script src="_static/documentation_options.js?v=88b74a65"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -426,6 +426,12 @@ a copy from GitHub), and then its other dependencies:</p>
 </pre></div>
 </div>
 <p>The two clones must be on <code class="docutils literal notranslate"><span class="pre">main</span></code> to be updated automatically.</p>
+<p>Check which lecilab-behavior-analysis the python uses <strong>from your home folder</strong>
+(inside the clone’s folder, python finds the clone even if it is not the one
+installed). It must print a path in <code class="docutils literal notranslate"><span class="pre">~/Github/lecilab-behavior-analysis</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">$PY</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"import lecilab_behavior_analysis as l; print(l.__file__)"</span>
+</pre></div>
+</div>
 </section>
 <section id="start-stop-check">
 <h3>Start, stop, check<a class="headerlink" href="#start-stop-check" title="Link to this heading">#</a></h3>

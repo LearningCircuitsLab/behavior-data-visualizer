@@ -37,7 +37,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=d2b7bb38"></script>
+    <script src="../../_static/documentation_options.js?v=88b74a65"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -414,6 +414,7 @@
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dash</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>  <span class="c1"># noqa: E402</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dash</span><span class="w"> </span><span class="kn">import</span> <span class="n">dcc</span><span class="p">,</span> <span class="n">html</span>  <span class="c1"># noqa: E402</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dash.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PreventUpdate</span>  <span class="c1"># noqa: E402</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span><span class="p">,</span> <span class="n">abort</span><span class="p">,</span> <span class="n">send_from_directory</span>  <span class="c1"># noqa: E402</span>
@@ -709,7 +710,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">update_settings_options</span><span class="p">(</span><span class="n">loaded</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="n">settings_options</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">load_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">]))</span>
+        <span class="n">table</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">settings_options</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 
     <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
         <span class="n">dash</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s2">"settings-matrix"</span><span class="p">,</span> <span class="s2">"figure"</span><span class="p">),</span>
@@ -725,8 +727,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">figures</span><span class="o">.</span><span class="n">empty_figure</span><span class="p">(</span><span class="s2">"Choose a project and a mouse"</span><span class="p">),</span> <span class="kc">None</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">load_mouse_data</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">])</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">load_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">])</span>
+        <span class="n">table</span><span class="p">,</span> <span class="n">problem</span> <span class="o">=</span> <span class="n">read_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">)</span>
         <span class="n">figure</span> <span class="o">=</span> <span class="n">figures</span><span class="o">.</span><span class="n">training_matrix_figure</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">names</span> <span class="ow">or</span> <span class="p">[]),</span> <span class="n">day</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">problem</span><span class="p">:</span>  <span class="c1"># the matrix without settings, and why</span>
+            <span class="k">return</span> <span class="n">figure</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="n">SMALL_TEXT</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">:</span> <span class="s2">"#c0392b"</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">figure</span><span class="p">,</span> <span class="n">day_settings_text</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">],</span> <span class="n">day</span><span class="p">)</span>
 
     <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
@@ -933,6 +937,27 @@
         <span class="p">)</span>
     <span class="n">psychometric</span> <span class="o">=</span> <span class="n">figures</span><span class="o">.</span><span class="n">psychometric_figure</span><span class="p">(</span><span class="n">in_view</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">patches</span><span class="p">[</span><span class="s2">"single-mouse-performance"</span><span class="p">],</span> <span class="n">patches</span><span class="p">[</span><span class="s2">"trial-by-trial"</span><span class="p">],</span> <span class="n">psychometric</span></div>
+
+
+
+<div class="viewcode-block" id="read_session_settings">
+<a class="viewcode-back" href="../../api_index.html#behavior_data_visualizer.main.read_session_settings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The settings of the sessions of the mouse (data.load_session_settings)</span>
+<span class="sd">    and, if they could not be read, why (otherwise None). The rest of the</span>
+<span class="sd">    dashboard keeps working without them.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">load_session_settings</span><span class="p">(</span><span class="n">loaded</span><span class="p">[</span><span class="s2">"project"</span><span class="p">],</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"mouse"</span><span class="p">]),</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">hint</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
+            <span class="n">hint</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">" lecilab-behavior-analysis may have been updated after the dashboard started:"</span>
+                <span class="s2">" restart it (scripts/dashboard_service.sh restart)."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">"Could not read the settings: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 

@@ -33,6 +33,14 @@ $PY -c "import dash, waitress, lecilab_behavior_analysis; print('ok')"
 
 The two clones must be on `main` to be updated automatically.
 
+Check which lecilab-behavior-analysis the python uses **from your home folder**
+(inside the clone's folder, python finds the clone even if it is not the one
+installed). It must print a path in `~/Github/lecilab-behavior-analysis`:
+
+```bash
+cd ~ && $PY -c "import lecilab_behavior_analysis as l; print(l.__file__)"
+```
+
 ### Start, stop, check
 
 ```bash

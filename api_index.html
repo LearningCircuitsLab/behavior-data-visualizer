@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="_static/documentation_options.js?v=d2b7bb38"></script>
+    <script src="_static/documentation_options.js?v=88b74a65"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -808,6 +808,19 @@ LECILAB_DATA_PATH environment variable, or the folder of this computer).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="behavior_data_visualizer.main.read_session_settings">
+<span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.main.</span></span><span class="sig-name descname"><span class="pre">read_session_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaded</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/main.html#read_session_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.main.read_session_settings" title="Link to this definition">#</a></dt>
+<dd><p>The settings of the sessions of the mouse (data.load_session_settings)
+and, if they could not be read, why (otherwise None). The rest of the
+dashboard keeps working without them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="behavior_data_visualizer.main.report_image">
 <span class="sig-prename descclassname"><span class="pre">behavior_data_visualizer.main.</span></span><span class="sig-name descname"><span class="pre">report_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/behavior_data_visualizer/main.html#report_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#behavior_data_visualizer.main.report_image" title="Link to this definition">#</a></dt>
 <dd><p>A figure of the daily report (lecilab_behavior_analysis.figure_maker) as an image.</p>
@@ -928,6 +941,7 @@ psychometric figure of the trials in view.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.day_text"><code class="docutils literal notranslate"><span class="pre">day_text()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.port_is_free"><code class="docutils literal notranslate"><span class="pre">port_is_free()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.read_session_settings"><code class="docutils literal notranslate"><span class="pre">read_session_settings()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.report_image"><code class="docutils literal notranslate"><span class="pre">report_image()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.settings_options"><code class="docutils literal notranslate"><span class="pre">settings_options()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#behavior_data_visualizer.main.status_text"><code class="docutils literal notranslate"><span class="pre">status_text()</span></code></a></li>
