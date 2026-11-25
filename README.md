@@ -2,7 +2,8 @@
 
 > **To use the Behavior Explorer from your computer, follow
 > [Use it from your computer](https://learningcircuitslab.github.io/behavior-data-visualizer/connect.html)**
-> (set up once, then type `explorer` and open <http://localhost:8055>).
+> (add an `explorer` entry to your SSH configuration once, then run
+> `ssh -N explorer` and open <http://localhost:8055>).
 
 Documentation: <https://learningcircuitslab.github.io/behavior-data-visualizer/>
 

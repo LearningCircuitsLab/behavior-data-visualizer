@@ -2,10 +2,9 @@
 
 The Behavior Explorer runs all the time on the cluster (minibaps2, port
 **8055**), for everyone. You do not install anything: you open an SSH tunnel
-from your computer and use it in your browser. Setting up a computer takes
-two steps, done once.
+from your computer and use it in your browser.
 
-## 1. Add an `explorer` entry to your SSH configuration
+## Once: add an `explorer` entry to your SSH configuration
 
 On your computer, add this to `~/.ssh/config`. Fill in the same address, user
 and jump host that you use to log in to minibaps2 (copy them from your
@@ -23,10 +22,24 @@ Host explorer
 where the dashboard is. Your other entries may forward other ports (e.g.
 8050): that is fine, as long as nothing else uses 8055.
 
-## 2. Add the `explorer` command to your terminal
+## Every time
 
-Add this to `~/.bashrc` (Linux, WSL) or `~/.zshrc` (Mac), then open a new
-terminal:
+Open the tunnel:
+
+```bash
+ssh -N explorer
+```
+
+and open <http://localhost:8055> in your browser.
+
+`-N` opens only the tunnel (no shell), so the terminal seems to hang: that is
+normal. Keep it open while you use the dashboard; Ctrl+C closes the tunnel.
+It may ask for your password.
+
+## Optional: an `explorer` command, to save time
+
+To open the tunnel and get the address with one word, add this to
+`~/.bashrc` (Linux, WSL) or `~/.zshrc` (Mac), then open a new terminal:
 
 ```bash
 # Behavior Explorer: opens the tunnel to the shared dashboard and prints its address
@@ -42,18 +55,8 @@ explorer() {
 }
 ```
 
-## Every time
-
-```bash
-explorer
-```
-
-It prints the address and opens the tunnel (it may ask for your password).
-Open <http://localhost:8055> in your browser, and keep the terminal open
-while you use it: it seems to hang, which is normal. Ctrl+C closes the
-tunnel. If a tunnel is already open, `explorer` only prints the address.
-
-Without the shortcut, `ssh -N explorer` does the same.
+From then on, type `explorer`: it prints the address and opens the tunnel
+(or, if a tunnel is already open, only prints the address).
 
 ## Good to know
 
@@ -69,12 +72,11 @@ Without the shortcut, `ssh -N explorer` does the same.
 
 ## If the page does not load
 
-- **Is the tunnel open?** `explorer` (or `ssh -N explorer`) must be running
-  in a terminal.
+- **Is the tunnel open?** `ssh -N explorer` must be running in a terminal.
 - **`bind: Address already in use`** when opening the tunnel: something on
   your computer already uses port 8055, usually another `explorer` tunnel
   that is still open. Close it, or just use that one.
 - **The tunnel opens but the page does not load:** the dashboard may be
   restarting (a few seconds after an update) or stopped; it is started again
   within 5 minutes. If it does not come back, tell whoever looks after it
-  (see [the shared dashboard](shared_dashboard.md)).
+  (see [running the shared dashboard](shared_dashboard.md)).

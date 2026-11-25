@@ -105,7 +105,7 @@ html_theme_options = {
         }
     ],
     "logo": {
-        "text": f"{project} v{release}",
+        "text": project,  # without the version: it makes the header unreadable
     },
 }
 
